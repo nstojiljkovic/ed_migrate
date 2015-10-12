@@ -1,0 +1,15 @@
+{
+  "name": "essential/my-ext",
+  "type": "typo3-cms-extension",
+  "description": "My description comes here",
+  "homepage": "https://www.essentialdots.com.com",
+  "license": ["GPL-2.0"],
+  "keywords": ["TYPO3 CMS", "Migrate Library"],
+  "support": {
+    "issues": "https://www.essentialdots.com.com"
+  },
+  "require": {
+    "symfony/expression-language": "~2.7"
+  },
+  "version": "0.1.0"
+}
