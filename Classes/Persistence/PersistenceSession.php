@@ -62,10 +62,10 @@ class PersistenceSession implements SingletonInterface {
 			);
 			if (!array_key_exists($tableName, $this->entitiesByTableAndId)) {
 				$this->entitiesByTableAndId[$tableName] = array(
-					$id => $entity
+					(string) $id => $entity
 				);
 			} else {
-				$this->entitiesByTableAndId[$tableName][$id] = $entity;
+				$this->entitiesByTableAndId[$tableName][(string) $id] = $entity;
 			}
 		}
 	}
@@ -76,8 +76,8 @@ class PersistenceSession implements SingletonInterface {
 	 * @return AbstractEntity|bool
 	 */
 	public function getRegisteredEntity($tableName, $id) {
-		if (array_key_exists($tableName, $this->entitiesByTableAndId) && array_key_exists($id, $this->entitiesByTableAndId[$tableName])) {
-			return $this->entitiesByTableAndId[$tableName][$id];
+		if (array_key_exists($tableName, $this->entitiesByTableAndId) && array_key_exists((string) $id, $this->entitiesByTableAndId[$tableName])) {
+			return $this->entitiesByTableAndId[$tableName][(string) $id];
 		}
 
 		return FALSE;
@@ -91,7 +91,7 @@ class PersistenceSession implements SingletonInterface {
 		if (array_key_exists($splObjectHash, $this->entities)) {
 			list($tableName, $id) = $this->entities[$splObjectHash];
 			if ($this->getRegisteredEntity($tableName, $id) !== FALSE) {
-				unset($this->entitiesByTableAndId[$tableName][$id]);
+				unset($this->entitiesByTableAndId[$tableName][(string) $id]);
 				unset($this->entities[spl_object_hash($entity)]);
 			}
 		}
@@ -107,7 +107,7 @@ class PersistenceSession implements SingletonInterface {
 		$GLOBALS['TYPO3_DB'] = new \EssentialDots\EdMigrate\Core\Database\DatabaseConnection($oldDb, $this);
 
 		/** @var \TYPO3\CMS\Core\DataHandling\DataHandler $tce */
-		$tce = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Core\DataHandling\DataHandler');
+		$tce = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Core\\Database\\DataHandler');
 		$tce->process_datamap();
 		$tce->enableLogging = FALSE;
 		$tce->stripslashes_values = FALSE;
@@ -116,6 +116,9 @@ class PersistenceSession implements SingletonInterface {
 		$tce->checkStoredRecords = FALSE;
 		$tce->isImporting = TRUE;
 		$tce->updateModeL10NdiffData = FALSE;
+		$tce->bypassAccessCheckForRecords = TRUE;
+		$tce->bypassWorkspaceRestrictions = TRUE;
+		$tce->bypassFileHandling = TRUE;
 
 		$dataMapFactory = DataMapFactory::getInstance();
 		$data = array();

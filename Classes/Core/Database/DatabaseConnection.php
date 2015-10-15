@@ -1,9 +1,5 @@
 <?php
 namespace EssentialDots\EdMigrate\Core\Database;
-use EssentialDots\EdScale\Database\Exception\MultipleConnectionsInQueryException;
-use PHPSQL\Parser;
-use TYPO3\CMS\Core\Database\PreparedStatement;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -72,11 +68,13 @@ class DatabaseConnection {
 			!$groupBy &&
 			!$orderBy &&
 			!$numIndex &&
-			preg_match('/^\s*uid\s*=\s*(\d+)\s*$/', $where_clause, $matches) === 1 &&
+			(preg_match('/^\s*uid\s*=\s*(\d+)/', $where_clause, $matches) === 1 || preg_match('/^\s*uid\s*=\s*\'(\d+)\'/', $where_clause, $matches) === 1) &&
 			($entity = $this->persistenceSession->getRegisteredEntity($from_table, $matches[1]))
 		) {
 			// just use cache!
-			return $entity->_getRow();
+			return $entity->_getOriginalRow();
+		} elseif ($from_table === 'pages' && $where_clause === 'uid = \'0\'') {
+			return NULL;
 		}
 
 		return $this->defaultDatabaseConnection->exec_SELECTgetSingleRow($select_fields, $from_table, $where_clause, $groupBy, $orderBy, $numIndex);
