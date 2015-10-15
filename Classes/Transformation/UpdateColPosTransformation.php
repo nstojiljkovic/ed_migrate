@@ -81,12 +81,12 @@ class UpdateColPosTransformation implements TransformationInterface {
 				$contentElements = $nodeRepository->findBy('tt_content', '(uid IN (' . implode(',', $allUids) . ') OR (l18n_parent = 0 AND pid = ' . (int) $node->getUid() . '))' . $ttContentEnableFields);
 //				$contentElements = $nodeRepository->findBy('tt_content', 'uid IN (' . implode(',', $allUids) . ')' . $ttContentEnableFields);
 				foreach ($contentElements as $contentElement) {
-					$found = FALSE;
+//					$found = FALSE;
 					$finalColPos = $this->notUsedColPos;
 					foreach ($colPosMap as $colPos => $uidList) {
 						if (GeneralUtility::inList($uidList, $contentElement->getUid())) {
 							$finalColPos = $colPos;
-							$found = TRUE;
+//							$found = TRUE;
 							break;
 						}
 					}

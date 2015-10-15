@@ -1,7 +1,6 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
-use EssentialDots\EdMigrate\Domain\Model\Node;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -27,31 +26,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  ***************************************************************/
 
 /**
- * Class FileReferencesExpression
+ * Class FileExpression
  *
  * @package EssentialDots\EdMigrate\Expression
  */
-class FileReferencesExpression extends AbstractFileExpression {
-
-	/**
-	 * @var string|ExpressionInterface
-	 */
-	protected $parentUid;
-
-	/**
-	 * @var string|ExpressionInterface
-	 */
-	protected $parentPid;
-
-	/**
-	 * @var string|ExpressionInterface
-	 */
-	protected $parentTableName;
-
-	/**
-	 * @var string|ExpressionInterface
-	 */
-	protected $parentFieldName;
+class FileExpression extends AbstractFileExpression {
 
 	/**
 	 * @var string|ExpressionInterface
@@ -69,19 +48,11 @@ class FileReferencesExpression extends AbstractFileExpression {
 	protected $targetFolder;
 
 	/**
-	 * @param $parentUid
-	 * @param $parentPid
-	 * @param $parentTableName
-	 * @param $parentFieldName
 	 * @param $sourceFile
 	 * @param null $sourceFolder
 	 * @param null $targetFolder
 	 */
-	public function __construct($parentUid, $parentPid, $parentTableName, $parentFieldName, $sourceFile, $sourceFolder = NULL, $targetFolder = NULL) {
-		$this->parentUid = $parentUid;
-		$this->parentPid = $parentPid;
-		$this->parentTableName = $parentTableName;
-		$this->parentFieldName = $parentFieldName;
+	public function __construct($sourceFile, $sourceFolder = NULL, $targetFolder = NULL) {
 		$this->sourceFile = $sourceFile;
 		$this->sourceFolder = $sourceFolder;
 		$this->targetFolder = $targetFolder;
@@ -94,13 +65,9 @@ class FileReferencesExpression extends AbstractFileExpression {
 	public function evaluate(AbstractEntity $node) {
 		$sourceFile = $this->sourceFile instanceof ExpressionInterface ? $this->sourceFile->evaluate($node) : (string) $this->sourceFile;
 		if (!$sourceFile) {
-			return 0;
+			return '';
 		}
 
-		$parentUid = $this->parentUid instanceof ExpressionInterface ? $this->parentUid->evaluate($node) : (string) $this->parentUid;
-		$parentPid = $this->parentPid instanceof ExpressionInterface ? $this->parentPid->evaluate($node) : (string) $this->parentPid;
-		$parentTableName = $this->parentTableName instanceof ExpressionInterface ? $this->parentTableName->evaluate($node) : (string) $this->parentTableName;
-		$parentFieldName = $this->parentFieldName instanceof ExpressionInterface ? $this->parentFieldName->evaluate($node) : (string) $this->parentFieldName;
 		$sourceFolder = $this->sourceFolder instanceof ExpressionInterface ? $this->sourceFolder->evaluate($node) : (string) $this->sourceFolder;
 		$targetFolder = $this->targetFolder instanceof ExpressionInterface ? $this->targetFolder->evaluate($node) : (string) $this->targetFolder;
 
@@ -154,23 +121,7 @@ class FileReferencesExpression extends AbstractFileExpression {
 				}
 
 				if ($targetFile) {
-					/** @var Node $entity */
-					$entity = GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Domain\\Model\\Node', 'sys_file_reference', array());
-					$entity->setUidLocal($targetFile->getUid());
-					$entity->setSysLanguageUid(0);
-					$entity->setL10nParent(0);
-					$entity->setHidden(0);
-					$entity->setUidForeign($parentUid);
-					$entity->setTablenames($parentTableName);
-					$entity->setFieldname($parentFieldName);
-					$entity->setPid($parentPid);
-					$entity->setTableLocal('sys_file');
-					/** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-					$objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
-					/** @var \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession */
-					$persistenceSession = $objectManager->get('EssentialDots\\EdMigrate\\Persistence\\PersistenceSession');
-					$persistenceSession->registerEntity('sys_file_reference', $entity->getUid(), $entity);
-					return $entity->getUid();
+					return (string) $targetFile->getUid();
 				}
 			}
 		}
