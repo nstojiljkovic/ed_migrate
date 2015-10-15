@@ -1,3 +1,11 @@
+Version: 0.1.2
+Subject: [TASK] Add FileExpression
+Date:    2015-10-15 13:02:23 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=1d136347306c4828068380f79203c643fc6e6ab7
+
+Change-Id: I995862e8c42aaa4776ceb5f1ac270744769c0583
+Related: #2121
+
 Version: 0.1.1
 Subject: [TASK] Optimize migration process by using cache of records already in memory
 Date:    2015-10-15 12:49:08 +0200
