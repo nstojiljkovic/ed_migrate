@@ -1,0 +1,8 @@
+Version: 0.1.1
+Subject: [TASK] Optimize migration process by using cache of records already in memory
+Date:    2015-10-15 12:49:08 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=86280c2d024a62d73f5da83c596bf5daa8538d51
+
+Change-Id: If466b8eb90a5d8215af8e179f6c819dd7af0e21a
+Related: #2121
+
