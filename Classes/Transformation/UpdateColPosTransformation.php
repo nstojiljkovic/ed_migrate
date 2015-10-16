@@ -47,12 +47,26 @@ class UpdateColPosTransformation implements TransformationInterface {
 	protected $notUsedColPos;
 
 	/**
+	 * @var string
+	 */
+	protected $tableName;
+
+	/**
+	 * @var ExpressionInterface
+	 */
+	protected $whereClause;
+
+	/**
 	 * @param $colPosMap
 	 * @param $notUsedColPos
+	 * @param string $tableName
+	 * @param ExpressionInterface|NULL $whereClause
 	 */
-	public function __construct($colPosMap, $notUsedColPos) {
+	public function __construct($colPosMap, $notUsedColPos, $tableName = '*', ExpressionInterface $whereClause = NULL) {
 		$this->colPosMap = $colPosMap;
 		$this->notUsedColPos = $notUsedColPos;
+		$this->tableName = $tableName;
+		$this->whereClause = $whereClause;
 	}
 
 	/**
@@ -60,7 +74,10 @@ class UpdateColPosTransformation implements TransformationInterface {
 	 * @return bool
 	 */
 	public function run(AbstractEntity $node) {
-		if (($node->_getTableName() === 'pages' || $node->_getTableName() === 'tt_content') && MathUtility::canBeInterpretedAsInteger($node->getUid())) {
+		if (
+			($node->_getTableName() === 'pages' || $node->_getTableName() === 'tt_content') &&
+			MathUtility::canBeInterpretedAsInteger($node->getUid())
+		) {
 			/** @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager */
 			$objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
 			/** @var \EssentialDots\EdMigrate\Domain\Repository\NodeRepository $nodeRepository */
@@ -70,7 +87,11 @@ class UpdateColPosTransformation implements TransformationInterface {
 
 			$ttContentEnableFields = BackendUtility::deleteClause('tt_content');
 
-			if ($node->_getTableName() === 'pages') {
+			if (
+				$node->_getTableName() === 'pages' &&
+				($this->tableName === '*' || $this->tableName === 'pages') &&
+				($this->whereClause === NULL || $this->whereClause->evaluate($node))
+			) {
 				$colPosMap = array();
 				$allUids = array(0);
 				foreach ($this->colPosMap as $colPos => $uidList) {
@@ -81,37 +102,41 @@ class UpdateColPosTransformation implements TransformationInterface {
 				$contentElements = $nodeRepository->findBy('tt_content', '(uid IN (' . implode(',', $allUids) . ') OR (l18n_parent = 0 AND pid = ' . (int) $node->getUid() . '))' . $ttContentEnableFields);
 //				$contentElements = $nodeRepository->findBy('tt_content', 'uid IN (' . implode(',', $allUids) . ')' . $ttContentEnableFields);
 				foreach ($contentElements as $contentElement) {
-//					$found = FALSE;
 					$finalColPos = $this->notUsedColPos;
+					$finalSorting = -1;
 					foreach ($colPosMap as $colPos => $uidList) {
 						if (GeneralUtility::inList($uidList, $contentElement->getUid())) {
 							$finalColPos = $colPos;
-//							$found = TRUE;
+							$finalSorting = array_search((string) $contentElement->getUid(), GeneralUtility::trimExplode(',', $uidList, TRUE));
 							break;
 						}
 					}
-//					if (!$found) {
-//						// @todo: maybe delete content element?
-//					}
 
 					if ($contentElement->getPid() === $node->getUid()) {
 						$contentElement->setColpos($finalColPos);
-						echo '  \- element[' . $contentElement->getUid() . '][colPos] => ' . $contentElement->getColpos() . PHP_EOL;
+						$contentElement->setSorting($finalSorting);
+						echo '  \- element[' . $contentElement->getUid() . '][colPos] => ' . $contentElement->getColpos()  . ', sort: ' . $finalSorting . PHP_EOL;
 					} else {
-						/** @var Node $entity */
+						/** @var Node $referenceElement */
 						$referenceElement = GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Domain\\Model\\Node', 'tt_content', array());
 						$referenceElement->setCtype('shortcut');
 						$referenceElement->setPid($node->getUid());
 						$referenceElement->setRecords($contentElement->getUid());
 						$referenceElement->setColpos($finalColPos);
+						$referenceElement->setSorting($finalSorting);
 						$persistenceSession->registerEntity('tt_content', $referenceElement->getUid(), $referenceElement);
-						echo '  \- reference[' . $contentElement->getUid() . '][colPos] => ' . $contentElement->getColpos() . ' on page ' . $node->getUid() . PHP_EOL;
-//						throw new \RuntimeException('Adding reference element has not been implemented yet. Found used element ' . $contentElement->getUid() . ' on page ' . $node->getUid());
+						echo '  \- reference[' . $contentElement->getUid() . '][colPos] => ' . $contentElement->getColpos() . ' on page ' . $node->getUid() . ', sort: ' . $finalSorting . PHP_EOL;
 					}
 				}
-			} elseif ((int) $node->getL18nParent() === 0 && $node->getColpos() != $this->notUsedColPos) {
+			} elseif (
+				$node->_getTableName() === 'tt_content' &&
+				(int) $node->getL18nParent() === 0 &&
+				($this->tableName === '*' || $this->tableName === 'tt_content') &&
+				($this->whereClause === NULL || $this->whereClause->evaluate($node))
+			) {
 				$contentElements = $nodeRepository->findBy('tt_content', 'l18n_parent = ' . (int) $node->getUid() . $ttContentEnableFields);
 				foreach ($contentElements as $contentElement) {
+					$contentElement->setSorting($node->getSorting());
 					$contentElement->setColpos($node->getColpos());
 					echo '  \- translation[' . $contentElement->getUid() . '][colPos] => ' . $contentElement->getColpos() . PHP_EOL;
 				}

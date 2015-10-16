@@ -52,9 +52,9 @@ class MigrationService implements SingletonInterface {
 	protected $tranformations = array();
 
 	/**
-	 * @var AbstractEntity
+	 * @var AbstractEntity[]
 	 */
-	protected $rootNode = NULL;
+	protected $rootNodes = array();
 
 	/**
 	 * @var MigrationService
@@ -76,8 +76,8 @@ class MigrationService implements SingletonInterface {
 	 * @param AbstractEntity $rootNode
 	 * @return void
 	 */
-	public function setRootNode(AbstractEntity $rootNode) {
-		$this->rootNode = $rootNode;
+	public function addRootNode(AbstractEntity $rootNode) {
+		$this->rootNodes[] = $rootNode;
 	}
 
 	/**
@@ -85,6 +85,21 @@ class MigrationService implements SingletonInterface {
 	 */
 	public function addTransformation(TransformationInterface $transformation) {
 		$this->tranformations[] = $transformation;
+	}
+
+	/**
+	 * @param string $class
+	 * @return TransformationInterface[]
+	 */
+	public function getTransformations($class) {
+		$result = array();
+		foreach ($this->tranformations as $transformation) {
+			if ($transformation instanceof $class) {
+				$result[] = $transformation;
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -98,8 +113,8 @@ class MigrationService implements SingletonInterface {
 	 * @return bool
 	 */
 	public function run() {
-		$traverseStack = array($this->rootNode);
-		$traverseHash = array(spl_object_hash($this->rootNode) => TRUE);
+		$traverseStack = $this->rootNodes;
+		$traverseHash = array(spl_object_hash(reset($this->rootNodes)) => TRUE);
 		while (($currentNode = array_pop($traverseStack))) {
 			foreach ($this->branchers as &$brancher) {
 				foreach ($brancher->getChildren($currentNode) as &$childNode) {

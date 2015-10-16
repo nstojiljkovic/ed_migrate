@@ -2,6 +2,7 @@
 namespace EssentialDots\EdMigrate\Domain\Model;
 use EssentialDots\EdMigrate\Persistence\Mapper\DataMapFactory;
 use EssentialDots\EdMigrate\Persistence\PersistenceSession;
+use EssentialDots\EdMigrate\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -78,7 +79,18 @@ abstract class AbstractEntity {
 		$this->tableName = $tableName;
 		$this->row = $row;
 		$this->originalRow = $row;
-		$this->uid = $row['uid'] ?: 'NEW' . PersistenceSession::$newRecordCounter++;
+		if (!$row['uid']) {
+			$this->uid = 'NEW' . PersistenceSession::$newRecordCounter++;
+			$propertyNames = array();
+			array_map(function ($value) use (&$propertyNames, &$tableName) {
+				if ($GLOBALS['TCA'][$tableName]['columns'][$value]) {
+					$propertyNames[] = GeneralUtility::underscoredToLowerCamelCase($value);
+				}
+			}, array_keys($row));
+			$this->changedFields = $propertyNames;
+		} else {
+			$this->uid = $row['uid'];
+		}
 		unset($row['uid']);
 	}
 
@@ -193,7 +205,7 @@ abstract class AbstractEntity {
 		if ($method === 'has') {
 			return TRUE;
 		} elseif ($method === 'get') {
-			if ($columnMap->getTypeOfRelation() === ColumnMap::RELATION_NONE) {
+//			if ($columnMap->getTypeOfRelation() === ColumnMap::RELATION_NONE) {
 				if ($columnMap->getType()->equals(TableColumnType::FLEX)) {
 					if (!$this->flexFieldsData[$columnMap->getColumnName()]) {
 						$this->flexFieldsData[$columnMap->getColumnName()] = GeneralUtility::xml2array($this->row[$columnMap->getColumnName()]);
@@ -201,22 +213,23 @@ abstract class AbstractEntity {
 					}
 
 					if (count($args) > 0) {
-						/** @var FlexFormTools $flexFormTools */
-						$flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
-						return $flexFormTools->getArrayValueByPath($args[0], $this->flexFieldsData[$columnMap->getColumnName()]);
+//						/** @var FlexFormTools $flexFormTools */
+//						$flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
+//						return $flexFormTools->getArrayValueByPath($args[0], $this->flexFieldsData[$columnMap->getColumnName()]);
+						return ArrayUtility::getInstance()->getByKey($this->flexFieldsData[$columnMap->getColumnName()], $args[0], NULL, '/');
 					}
 
 					return $this->flexFieldsData[$columnMap->getColumnName()];
 				}
 
 				return $this->row[$columnMap->getColumnName()];
-			} else {
-				throw new \RuntimeException ('Fetching relation fields has not been implemented yet.');
-			}
+//			} else {
+//				throw new \RuntimeException ('Fetching relation fields has not been implemented yet.');
+//			}
 		} else {
-			if ($columnMap->getTypeOfRelation() !== ColumnMap::RELATION_NONE) {
-				throw new \RuntimeException ('Setting relation fields has not been implemented yet.');
-			}
+//			if ($columnMap->getTypeOfRelation() !== ColumnMap::RELATION_NONE) {
+//				throw new \RuntimeException ('Setting relation fields has not been implemented yet.');
+//			}
 
 			if (!in_array($propertyName, $this->changedFields)) {
 				$this->changedFields[] = $propertyName;
@@ -226,6 +239,10 @@ abstract class AbstractEntity {
 				if (!$this->flexFieldsData[$columnMap->getColumnName()]) {
 					$this->flexFieldsData[$columnMap->getColumnName()] = GeneralUtility::xml2array($this->row[$columnMap->getColumnName()]);
 					$this->flexFieldsData[$columnMap->getColumnName()] = is_array($this->flexFieldsData[$columnMap->getColumnName()]) ? $this->flexFieldsData[$columnMap->getColumnName()] : array();
+					if ($this->flexFieldsData[$columnMap->getColumnName()]['data'] === '') {
+//						$this->flexFieldsData[$columnMap->getColumnName()]['data'] = array();
+						unset($this->flexFieldsData[$columnMap->getColumnName()]['data']);
+					}
 				}
 
 				/** @var FlexFormTools $flexFormTools */

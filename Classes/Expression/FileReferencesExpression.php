@@ -69,6 +69,11 @@ class FileReferencesExpression extends AbstractFileExpression {
 	protected $targetFolder;
 
 	/**
+	 * @var array
+	 */
+	protected $referenceProperties;
+
+	/**
 	 * @param $parentUid
 	 * @param $parentPid
 	 * @param $parentTableName
@@ -76,8 +81,9 @@ class FileReferencesExpression extends AbstractFileExpression {
 	 * @param $sourceFile
 	 * @param null $sourceFolder
 	 * @param null $targetFolder
+	 * @param null $referenceProperties
 	 */
-	public function __construct($parentUid, $parentPid, $parentTableName, $parentFieldName, $sourceFile, $sourceFolder = NULL, $targetFolder = NULL) {
+	public function __construct($parentUid, $parentPid, $parentTableName, $parentFieldName, $sourceFile, $sourceFolder = NULL, $targetFolder = NULL, array $referenceProperties = NULL) {
 		$this->parentUid = $parentUid;
 		$this->parentPid = $parentPid;
 		$this->parentTableName = $parentTableName;
@@ -85,6 +91,7 @@ class FileReferencesExpression extends AbstractFileExpression {
 		$this->sourceFile = $sourceFile;
 		$this->sourceFolder = $sourceFolder;
 		$this->targetFolder = $targetFolder;
+		$this->referenceProperties = $referenceProperties;
 	}
 
 	/**
@@ -92,8 +99,8 @@ class FileReferencesExpression extends AbstractFileExpression {
 	 * @return string
 	 */
 	public function evaluate(AbstractEntity $node) {
-		$sourceFile = $this->sourceFile instanceof ExpressionInterface ? $this->sourceFile->evaluate($node) : (string) $this->sourceFile;
-		if (!$sourceFile) {
+		$sourceFiles = $this->sourceFile instanceof ExpressionInterface ? $this->sourceFile->evaluate($node) : (string) $this->sourceFile;
+		if (!$sourceFiles) {
 			return 0;
 		}
 
@@ -106,75 +113,86 @@ class FileReferencesExpression extends AbstractFileExpression {
 
 		/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
 		$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
-		$sourceFileIdentifier = $sourceFolder . $sourceFile;
-		try {
-			$sourceFileResource = $resourceFactory->getFileObjectFromCombinedIdentifier($sourceFileIdentifier);
-		} catch (\Exception $e) {
-			$sourceFileResource = FALSE;
-		}
-		if ($sourceFileResource) {
-			$matches = NULL;
-			$decodedUid = $targetFolder;
-			if (preg_match('/(\d+):\/(.*)/', $targetFolder, $matches) === 1) {
-				$storageUid = $matches[1];
-				$requiredFullPath = $matches[2];
-				$fullPathArr = GeneralUtility::trimExplode(DIRECTORY_SEPARATOR, $matches[2], TRUE);
-				$sanitizedFullPathArr = array();
+		$sourceFilesArr = GeneralUtility::trimExplode(',', $sourceFiles, TRUE);
+		$result = array();
+		foreach ($sourceFilesArr as $sourceFile) {
+			$sourceFileIdentifier = $sourceFolder . $sourceFile;
+			try {
+				$sourceFileResource = $resourceFactory->getFileObjectFromCombinedIdentifier($sourceFileIdentifier);
+			} catch (\Exception $e) {
+				$sourceFileResource = FALSE;
+			}
+			if ($sourceFileResource) {
+				$matches = NULL;
+				$decodedUid = $targetFolder;
+				if (preg_match('/(\d+):\/(.*)/', $targetFolder, $matches) === 1) {
+					$storageUid = $matches[1];
+					$requiredFullPath = $matches[2];
+					$fullPathArr = GeneralUtility::trimExplode(DIRECTORY_SEPARATOR, $matches[2], TRUE);
+					$sanitizedFullPathArr = array();
 
-				$storage = $resourceFactory->getStorageObject($storageUid);
-				$driverObject = $resourceFactory->getDriverObject($storage->getDriverType(), $storage->getConfiguration());
-				$driverObject->processConfiguration();
+					$storage = $resourceFactory->getStorageObject($storageUid);
+					$driverObject = $resourceFactory->getDriverObject($storage->getDriverType(), $storage->getConfiguration());
+					$driverObject->processConfiguration();
 
-				foreach ($fullPathArr as $segment) {
-					$sanitizedSegment = $driverObject->sanitizeFileName($segment);
-					if ($sanitizedSegment) {
-						$sanitizedFullPathArr[] = $sanitizedSegment;
-					}
-				}
-
-				$sanitizedFullPath = implode(DIRECTORY_SEPARATOR, $sanitizedFullPathArr);
-
-				if ($sanitizedFullPath === $requiredFullPath || $sanitizedFullPath . DIRECTORY_SEPARATOR === $requiredFullPath) {
-					$decodedUid = $storageUid . ':/' . $sanitizedFullPath;
-
-					$folder = $storage->getRootLevelFolder();
 					foreach ($fullPathArr as $segment) {
-						if (!$folder->hasFolder($segment)) {
-							$newFolder = $driverObject->createFolder($segment, $folder->getIdentifier(), FALSE);
-							$folder = $storage->getFolder($newFolder);
-						} else {
-							$folder = $folder->getSubfolder($segment);
+						$sanitizedSegment = $driverObject->sanitizeFileName($segment);
+						if ($sanitizedSegment) {
+							$sanitizedFullPathArr[] = $sanitizedSegment;
 						}
 					}
-				}
 
-				$targetFolderResource = $resourceFactory->getFolderObjectFromCombinedIdentifier($decodedUid);
-				if (($targetFile = $this->findExistingFileByStorageFolderAndSha1($storageUid, '/' . $sanitizedFullPath, $sourceFileResource->getSha1())) === NULL) {
-					$targetFile = $sourceFileResource->copyTo($targetFolderResource);
-				}
+					$sanitizedFullPath = implode(DIRECTORY_SEPARATOR, $sanitizedFullPathArr);
 
-				if ($targetFile) {
-					/** @var Node $entity */
-					$entity = GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Domain\\Model\\Node', 'sys_file_reference', array());
-					$entity->setUidLocal($targetFile->getUid());
-					$entity->setSysLanguageUid(0);
-					$entity->setL10nParent(0);
-					$entity->setHidden(0);
-					$entity->setUidForeign($parentUid);
-					$entity->setTablenames($parentTableName);
-					$entity->setFieldname($parentFieldName);
-					$entity->setPid($parentPid);
-					$entity->setTableLocal('sys_file');
-					/** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-					$objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
-					/** @var \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession */
-					$persistenceSession = $objectManager->get('EssentialDots\\EdMigrate\\Persistence\\PersistenceSession');
-					$persistenceSession->registerEntity('sys_file_reference', $entity->getUid(), $entity);
-					return $entity->getUid();
+					if ($sanitizedFullPath === $requiredFullPath || $sanitizedFullPath . DIRECTORY_SEPARATOR === $requiredFullPath) {
+						$decodedUid = $storageUid . ':/' . $sanitizedFullPath;
+
+						$folder = $storage->getRootLevelFolder();
+						foreach ($fullPathArr as $segment) {
+							if (!$folder->hasFolder($segment)) {
+								$newFolder = $driverObject->createFolder($segment, $folder->getIdentifier(), FALSE);
+								$folder = $storage->getFolder($newFolder);
+							} else {
+								$folder = $folder->getSubfolder($segment);
+							}
+						}
+					}
+
+					$targetFolderResource = $resourceFactory->getFolderObjectFromCombinedIdentifier($decodedUid);
+					if (($targetFile = $this->findExistingFileByStorageFolderAndSha1($storageUid, '/' . $sanitizedFullPath, $sourceFileResource->getSha1())) === NULL) {
+						$targetFile = $sourceFileResource->copyTo($targetFolderResource);
+					}
+
+					if ($targetFile) {
+						/** @var Node $entity */
+						$entity = GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Domain\\Model\\Node', 'sys_file_reference', array());
+						$entity->setUidLocal($targetFile->getUid());
+						$entity->setSysLanguageUid(0);
+						$entity->setL10nParent(0);
+						$entity->setHidden(0);
+						$entity->setUidForeign($parentUid);
+						$entity->setTablenames($parentTableName);
+						$entity->setFieldname($parentFieldName);
+						$entity->setPid($parentPid);
+						$entity->setSorting(count($result) + 1);
+						$entity->setTableLocal('sys_file');
+						if (is_array($this->referenceProperties)) {
+							foreach ($this->referenceProperties as $key => $value) {
+								$valueSetter = 'set' . ucfirst($key);
+								$entity->$valueSetter($value instanceof ExpressionInterface ? $value->evaluate($node) : (string) $value);
+							}
+						}
+						/** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
+						$objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
+						/** @var \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession */
+						$persistenceSession = $objectManager->get('EssentialDots\\EdMigrate\\Persistence\\PersistenceSession');
+						$persistenceSession->registerEntity('sys_file_reference', $entity->getUid(), $entity);
+						$result[] = $entity->getUid();
+					}
 				}
 			}
 		}
 
-		return '0';
+		return implode(',', $result) ?: '0';
 	}
 }

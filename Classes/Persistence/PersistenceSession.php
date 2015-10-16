@@ -4,7 +4,7 @@ use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Persistence\Mapper\DataMapFactory;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 /***************************************************************
  *  Copyright notice
  *
@@ -101,6 +101,14 @@ class PersistenceSession implements SingletonInterface {
 	 * @return void
 	 */
 	public function persistChangedEntities() {
+		$reflectedClass = new \ReflectionClass(GeneralUtility::class);
+		$reflectedProperty = $reflectedClass->getProperty('finalClassNameCache');
+		$reflectedProperty->setAccessible(TRUE);
+		$staticProps = $reflectedClass->getStaticProperties();
+		unset($staticProps['finalClassNameCache']['TYPO3\\CMS\\Core\\Database\\ReferenceIndex']);
+		$reflectedProperty->setValue('finalClassNameCache', $staticProps['finalClassNameCache']);
+		$reflectedProperty->setAccessible(FALSE);
+
 		$oldReferenceIndexClassName = $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Core\\Database\\ReferenceIndex']['className'];
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Core\\Database\\ReferenceIndex']['className'] = 'EssentialDots\\EdMigrate\\Core\\Database\\DummyReferenceIndex';
 		$oldDb = $GLOBALS['TYPO3_DB'];
@@ -119,6 +127,7 @@ class PersistenceSession implements SingletonInterface {
 		$tce->bypassAccessCheckForRecords = TRUE;
 		$tce->bypassWorkspaceRestrictions = TRUE;
 		$tce->bypassFileHandling = TRUE;
+		$tce->removeFilesStore = array();
 
 		$dataMapFactory = DataMapFactory::getInstance();
 		$data = array();
@@ -139,9 +148,9 @@ class PersistenceSession implements SingletonInterface {
 						if (!$columnMap) {
 							throw new \RuntimeException ('Column map could not be found for property ' . $changedField . ' of object ' . get_class($entity) . '.');
 						}
-						if ($columnMap->getTypeOfRelation() !== ColumnMap::RELATION_NONE) {
-							throw new \RuntimeException ('Setting relation fields has not been implemented yet.');
-						}
+//						if ($columnMap->getTypeOfRelation() !== ColumnMap::RELATION_NONE) {
+//							throw new \RuntimeException ('Setting relation fields has not been implemented yet.');
+//						}
 						switch ($columnMap->getType()) {
 							case TableColumnType::FLEX:
 								// same as regular plain text fields
@@ -167,7 +176,6 @@ class PersistenceSession implements SingletonInterface {
 			}
 		}
 
-		$tce->removeFilesStore = array();
 		$tce->start($data, NULL);
 		$tce->process_datamap();
 
@@ -175,10 +183,26 @@ class PersistenceSession implements SingletonInterface {
 			echo 'TCE->errorLog:' . \TYPO3\CMS\Core\Utility\DebugUtility::viewArray($tce->errorLog) . PHP_EOL;
 		}
 
-		// update uids of new records
-		foreach ($newEntities as $newId => &$entity) {
-			if ($tce->substNEWwithIDs[$newId]) {
-				$entity->_setUid($tce->substNEWwithIDs[$newId]);
+		if (count($newEntities) > 0) {
+			// update uids of new records
+			foreach ($newEntities as $newId => &$entity) {
+				if ($tce->substNEWwithIDs[$newId]) {
+					$entity->_setUid($tce->substNEWwithIDs[$newId]);
+					$data[$entity->_getTableName()][$entity->getUid()] = $data[$entity->_getTableName()][$newId];
+					unset($data[$entity->_getTableName()][$newId]);
+				}
+			}
+
+			// double check if all 'NEW' references have been substituted with the proper values
+			// core doesn't do it without error, for example, group elements are not evaluated at all
+			// @see \TYPO3\CMS\Core\DataHandling\DataHandler::checkValueForGroupSelect
+			$this->substituteNewIds($data, $tce, 0, 2);
+			if (count($data) > 0) {
+				$tce->start($data, NULL);
+				$tce->process_datamap();
+				if ($tce->errorLog) {
+					echo 'TCE->errorLog:' . \TYPO3\CMS\Core\Utility\DebugUtility::viewArray($tce->errorLog) . PHP_EOL;
+				}
 			}
 		}
 
@@ -188,5 +212,42 @@ class PersistenceSession implements SingletonInterface {
 			unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Core\\Database\\ReferenceIndex']['className']);
 		}
 		$GLOBALS['TYPO3_DB'] = $oldDb;
+	}
+
+	/**
+	 * @param array $arr
+	 * @param \TYPO3\CMS\Core\DataHandling\DataHandler $tce
+	 * @param int $depth
+	 * @param int $limitClearDepth
+	 * @return void
+	 */
+	protected function substituteNewIds(array &$arr, \TYPO3\CMS\Core\DataHandling\DataHandler &$tce, $depth = 0, $limitClearDepth = 9999) {
+		$unsetKeys = array();
+		foreach ($arr as $k => &$v) {
+			if (is_array($v)) {
+				$this->substituteNewIds($v, $tce, $depth + 1, $limitClearDepth);
+				if (count($v) === 0) {
+					$unsetKeys[] = $k;
+				}
+			} else {
+				if (strpos(',' . $v, ',NEW') !== FALSE) {
+					// substitute new uid marker with act
+					$v = preg_replace_callback(
+						'/NEW(\d+)/',
+						function($matches) use (&$tce) {
+							return $tce->substNEWwithIDs[$matches[0]] ?: $matches[0];
+						},
+						$v
+					);
+				} else {
+					$unsetKeys[] = $k;
+				}
+			}
+		}
+		if ($depth <= $limitClearDepth) {
+			foreach ($unsetKeys as $k) {
+				unset($arr[$k]);
+			}
+		}
 	}
 }
