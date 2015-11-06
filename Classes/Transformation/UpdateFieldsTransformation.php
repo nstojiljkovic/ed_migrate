@@ -49,14 +49,21 @@ class UpdateFieldsTransformation implements TransformationInterface {
 	protected $whereClause;
 
 	/**
+	 * @var array
+	 */
+	protected $unsetProperties;
+
+	/**
 	 * @param $updateProperties
 	 * @param $tableName
 	 * @param ExpressionInterface $whereClause
+	 * @param $unsetProperties
 	 */
-	public function __construct($updateProperties, $tableName, ExpressionInterface $whereClause = NULL) {
+	public function __construct($updateProperties, $tableName, ExpressionInterface $whereClause = NULL, $unsetProperties = NULL) {
 		$this->updateProperties = $updateProperties;
 		$this->tableName = $tableName;
 		$this->whereClause = $whereClause;
+		$this->unsetProperties = $unsetProperties;
 	}
 
 	/**
@@ -76,6 +83,19 @@ class UpdateFieldsTransformation implements TransformationInterface {
 					} else {
 						$node->$setter($evaluatedValue);
 					}
+				}
+				if (is_array($this->unsetProperties)) {
+					foreach ($this->unsetProperties as $propertyNamePath) {
+						list($propertyName, $flexFieldPath) = GeneralUtility::trimExplode(':', $propertyNamePath, TRUE, 2);
+						$unsetter = 'del' . ucfirst($propertyName);
+						echo '  \- ' . $propertyNamePath . ' => ' . $evaluatedValue . PHP_EOL;
+						if ($flexFieldPath) {
+							$node->$unsetter($flexFieldPath);
+						} else {
+							$node->$unsetter();
+						}
+					}
+
 				}
 			}
 		}

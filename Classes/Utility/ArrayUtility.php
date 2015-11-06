@@ -219,4 +219,31 @@ class ArrayUtility {
 		$forward ? ksort($result) : krsort($result);
 		return array_values($result);
 	}
+
+	/**
+	 * Unsets a value in a multi-dimensional array by giving a path "../../.." pointing to the element
+	 *
+	 * @param $pathArray
+	 * @param $array
+	 * @return bool
+	 */
+	public function unsetArrayValueByPath($pathArray, &$array) {
+		if (!is_array($pathArray)) {
+			$pathArray = explode('/', $pathArray);
+		}
+		if (is_array($array) && !empty($pathArray)) {
+			$key = array_shift($pathArray);
+			if (empty($pathArray)) {
+				unset($array[$key]);
+				return TRUE;
+			}
+			if (!isset($array[$key])) {
+				return TRUE;
+			}
+
+			return $this->unsetArrayValueByPath($pathArray, $array[$key]);
+		}
+
+		return FALSE;
+	}
 }

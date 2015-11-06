@@ -188,7 +188,7 @@ abstract class AbstractEntity {
 		$propertyName = lcfirst(substr($function, 3));
 		$method = substr($function, 0, 3);
 
-		if ($method !== 'has' && $method !== 'get' && $method !== 'set') {
+		if ($method !== 'has' && $method !== 'get' && $method !== 'set' && $method !== 'del') {
 			throw new \BadMethodCallException ($function . ' is not defined in ' . get_class($this));
 		}
 
@@ -226,6 +226,40 @@ abstract class AbstractEntity {
 //			} else {
 //				throw new \RuntimeException ('Fetching relation fields has not been implemented yet.');
 //			}
+		} elseif ($method === 'del') {
+//			if ($columnMap->getTypeOfRelation() !== ColumnMap::RELATION_NONE) {
+//				throw new \RuntimeException ('Setting relation fields has not been implemented yet.');
+//			}
+
+			if (!in_array($propertyName, $this->changedFields)) {
+				$this->changedFields[] = $propertyName;
+			}
+
+			if ($columnMap->getType()->equals(TableColumnType::FLEX)) {
+				if (!$this->flexFieldsData[$columnMap->getColumnName()]) {
+					$this->flexFieldsData[$columnMap->getColumnName()] = GeneralUtility::xml2array($this->row[$columnMap->getColumnName()]);
+					$this->flexFieldsData[$columnMap->getColumnName()] = is_array($this->flexFieldsData[$columnMap->getColumnName()]) ? $this->flexFieldsData[$columnMap->getColumnName()] : array();
+					if ($this->flexFieldsData[$columnMap->getColumnName()]['data'] === '') {
+//						$this->flexFieldsData[$columnMap->getColumnName()]['data'] = array();
+						unset($this->flexFieldsData[$columnMap->getColumnName()]['data']);
+					}
+				}
+
+				/** @var FlexFormTools $flexFormTools */
+				$flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
+
+				if (count($args) > 0) {
+					ArrayUtility::getInstance()->unsetArrayValueByPath($args[0], $this->flexFieldsData[$columnMap->getColumnName()]);
+				} else {
+					$this->flexFieldsData[$columnMap->getColumnName()] = array();
+				}
+
+				$this->row[$columnMap->getColumnName()] = $flexFormTools->flexArray2Xml($this->flexFieldsData[$columnMap->getColumnName()]);
+				return $this->flexFieldsData[$columnMap->getColumnName()];
+			} else {
+				$this->row[$columnMap->getColumnName()] = NULL;
+				return $this->row[$columnMap->getColumnName()];
+			}
 		} else {
 //			if ($columnMap->getTypeOfRelation() !== ColumnMap::RELATION_NONE) {
 //				throw new \RuntimeException ('Setting relation fields has not been implemented yet.');
