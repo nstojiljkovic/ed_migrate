@@ -1,3 +1,27 @@
+Version: 0.1.3
+Subject: [TASK] Various improvements of languages/grids/files related migrations
+Date:    2015-11-06 12:32:45 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=8d26a32ab6b78c91cf0169734930328dbe5b0627
+
+Includes:
+* minor fixes in the Flex form fields getters/setters
+* properly set changedFields in new AbstractEntity creation
+* support for setting sys_file_reference properties in
+  FileReferencesExpression
+* fix for broken updates of relations to newly created records in DataHandler
+* speed optimisation of DataHandler operations
+* renamed old TranslationService to LocalLangService
+* implemented TranslateElementWithAllLanguagesTransformation
+* implemented TranslationService (for dealing with record translations) 
+* implemented RunCliTaskTransformation for running 3rd party TYPO3 CLI
+  processes
+* implemented UpdateGridColPosTransformation for grids/buckets/boxes
+  migrations
+* language support in UpdateColPosTransformation
+
+Change-Id: I980f5705f30846c6a01f488424debab04d8b381b
+Related: #2124
+
 Version: 0.1.2
 Subject: [TASK] Add FileExpression
 Date:    2015-10-15 13:02:23 +0200
