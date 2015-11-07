@@ -1,3 +1,11 @@
+Version: 0.1.4
+Subject: [TASK] Support for unsetting entity properties in a transformation
+Date:    2015-11-06 15:36:49 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=3ada2b175463ba733f53ce095edeb3e03625402e
+
+Change-Id: I0514894b88969363eca03d1da00c7632be3088b4
+Related: #2182
+
 Version: 0.1.3
 Subject: [TASK] Various improvements of languages/grids/files related migrations
 Date:    2015-11-06 12:32:45 +0100
