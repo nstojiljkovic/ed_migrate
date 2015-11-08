@@ -1,3 +1,11 @@
+Version: 0.1.5
+Subject: [TASK] Implement ArrayMap and Database expressions
+Date:    2015-11-07 22:20:58 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=542fed5b9c098297fcbfd25764cb31220d668c7e
+
+Change-Id: I8310e039d8e8d6d8b951a11cdd0d42ae778a838d
+Related: #2181
+
 Version: 0.1.4
 Subject: [TASK] Support for unsetting entity properties in a transformation
 Date:    2015-11-06 15:36:49 +0100
