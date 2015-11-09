@@ -149,6 +149,7 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 			$colPosSetter = 'set' . ucfirst($this->columnField);
 
 			$parentFieldSetter = 'set' . ucfirst($this->parentField);
+			$parentFieldGetter = 'get' . ucfirst($this->parentField);
 			$parentFieldHas = 'has' . ucfirst($this->parentField);
 
 			$referenceParentFieldSetter = 'set' . ucfirst($this->referenceParentField);
@@ -182,9 +183,6 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 						break;
 					}
 				}
-//				if (!$found) {
-//					// @todo: maybe delete content element?
-//				}
 
 				if (
 					$this->childTableName !== 'tt_content' ||
@@ -196,7 +194,37 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 						$childElement->$sortingSetter($finalSorting);
 					}
 					if ($this->parentField && $childElement->$parentFieldHas()) {
-						$childElement->$parentFieldSetter($node->getUid());
+						if ($childElement->$parentFieldGetter()) {
+							if ($childElement->$parentFieldGetter() !== $node->getUid()) {
+								// conflict resolution, we already have parent column configured.
+								// double check both uids and see
+								echo '  \- CONFLICT: elements[' . $childElement->$parentFieldGetter() . '] and [' . $node->getUid() . '] both claim they are parents of => ' . $childElement->getUid() . PHP_EOL;
+								$oldParent = $nodeRepository->findBy($node->_getTableName(), 'uid = ' . (int)  $childElement->$parentFieldGetter(), 1);
+								$pUid = $node->getUid();
+								if ($oldParent) {
+									$parentLanuageField = $GLOBALS['TCA'][$node->_getTableName()]['ctrl']['languageField'];
+									$childLanuageField = $GLOBALS['TCA'][$childElement->_getTableName()]['ctrl']['languageField'];
+									if ($parentLanuageField && $childLanuageField) {
+										$parentLanuageFieldGetter = 'get' . GeneralUtility::underscoredToUpperCamelCase($parentLanuageField);
+										$childLanuageFieldGetter = 'get' . GeneralUtility::underscoredToUpperCamelCase($childLanuageField);
+										if ($oldParent->$parentLanuageFieldGetter() != $node->$parentLanuageFieldGetter()) {
+											if ($oldParent->$parentLanuageFieldGetter() == $childElement->$childLanuageFieldGetter()) {
+												$pUid = $childElement->$parentFieldGetter();
+											} else {
+												$pUid = $node->getUid();
+											}
+										} else {
+											$pUid = $node->getUid();
+										}
+									}
+								}
+
+								$childElement->$parentFieldSetter($pUid);
+								echo '               *** resolved parenthood to [' . $pUid . ']' . PHP_EOL;
+							}
+						} else {
+							$childElement->$parentFieldSetter($node->getUid());
+						}
 					}
 					if ($this->updateFieldsTransformation !== NULL) {
 						$this->updateFieldsTransformation->run($childElement);
