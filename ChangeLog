@@ -1,3 +1,11 @@
+Version: 0.1.6
+Subject: [TASK] Implement conflict resolution when multiple elements claim parenthood of the same child
+Date:    2015-11-09 12:30:39 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=78ec62d003d02b532256d5731cecfe9d7e357f82
+
+Change-Id: Icaa9a2df9720267f2ec62a100b92f9c67c40e27f
+Related: #2125
+
 Version: 0.1.5
 Subject: [TASK] Implement ArrayMap and Database expressions
 Date:    2015-11-07 22:20:58 +0100
