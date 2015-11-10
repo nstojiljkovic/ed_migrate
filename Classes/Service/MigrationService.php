@@ -110,9 +110,12 @@ class MigrationService implements SingletonInterface {
 	}
 
 	/**
-	 * @return bool
+	 * @return void
 	 */
 	public function run() {
+		if (count($this->rootNodes) === 0) {
+			return;
+		}
 		$traverseStack = $this->rootNodes;
 		$traverseHash = array(spl_object_hash(reset($this->rootNodes)) => TRUE);
 		while (($currentNode = array_pop($traverseStack))) {
@@ -132,5 +135,14 @@ class MigrationService implements SingletonInterface {
 			}
 			//unset($traverseHash[spl_object_hash($currentNode)]);
 		}
+	}
+
+	/**
+	 * @return void
+	 */
+	public function reset() {
+		$this->branchers = array();
+		$this->tranformations = array();
+		$this->rootNodes = array();
 	}
 }

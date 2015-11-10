@@ -63,7 +63,7 @@ class LocalLangService implements SingletonInterface {
 		$storage = $resourceFactory->getStorageObject($storageUid);
 		$l10nFolder = $storage->getFolder('typo3conf/l10n');
 		if (!$l10nFolder) {
-			throw new \RuntimeException ('Could not open folder: "typo3conf/l10n" .');
+			throw new \RuntimeException ('Could not open folder: "typo3conf/l10n" .', 14);
 		}
 		$languageFolders = $l10nFolder->getSubfolders();
 		$processedFiles = array();
@@ -76,7 +76,7 @@ class LocalLangService implements SingletonInterface {
 			if ($languageFolder->hasFolder($sourceFilePath)) {
 				$sourceFolder = $languageFolder->getSubfolder($sourceFilePath);
 				if (!$sourceFolder) {
-					throw new \RuntimeException ('Could not open source folder : "' . $sourceFilePath . '" .');
+					throw new \RuntimeException ('Could not open source folder : "' . $sourceFilePath . '" .', 15);
 				}
 				if ($sourceFolder->hasFile($sourceFileName)) {
 					$sourceTranslationFileCombinedIdentifier = $sourceFolder->getCombinedIdentifier() . $sourceFileName;

@@ -1,0 +1,130 @@
+{
+    "modules": [
+        {
+            "config": {
+                "position": [
+                    118,
+                    142
+                ]
+            },
+            "name": "New Model Object",
+            "value": {
+                "actionGroup": {
+                    "_default0_list": false,
+                    "_default1_show": false,
+                    "_default2_new_create": false,
+                    "_default3_edit_update": false,
+                    "_default4_delete": false,
+                    "customActions": [
+
+                    ]
+                },
+                "name": "Log",
+                "objectsettings": {
+                    "addDeletedField": false,
+                    "addHiddenField": false,
+                    "addStarttimeEndtimeFields": false,
+                    "aggregateRoot": true,
+                    "categorizable": false,
+                    "description": "",
+                    "mapToTable": "",
+                    "parentClass": "",
+                    "sorting": false,
+                    "type": "Entity",
+                    "uid": "1065227073343"
+                },
+                "propertyGroup": {
+                    "properties": [
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "version",
+                            "propertyType": "String",
+                            "uid": "466181785332"
+                        },
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "startTime",
+                            "propertyType": "DateTime",
+                            "uid": "579947370838"
+                        },
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "endTime",
+                            "propertyType": "String",
+                            "uid": "787728939421"
+                        },
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "namespace",
+                            "propertyType": "String",
+                            "uid": "1348046876956"
+                        }
+                    ]
+                },
+                "relationGroup": {
+                    "relations": [
+
+                    ]
+                }
+            }
+        }
+    ],
+    "properties": {
+        "backendModules": [
+
+        ],
+        "description": "",
+        "emConf": {
+            "category": "plugin",
+            "custom_category": "",
+            "dependsOn": "typo3 => 7.0.0-0.0.0",
+            "disableLocalization": true,
+            "disableVersioning": true,
+            "skipGenerateDocumentationTemplate": true,
+            "sourceLanguage": "en",
+            "state": "alpha",
+            "targetVersion": "7.6.0-7.6.99",
+            "version": ""
+        },
+        "extensionKey": "ed_migrate",
+        "name": "Essential Dots Migrate Library",
+        "originalExtensionKey": "ed_migrate",
+        "originalVendorName": "EssentialDots",
+        "persons": [
+            {
+                "company": "Essential Dots d.o.o. Belgrade",
+                "email": "",
+                "name": "Nikola Stojiljkovic",
+                "role": "Product Manager"
+            }
+        ],
+        "plugins": [
+
+        ],
+        "vendorName": "EssentialDots"
+    },
+    "wires": [
+
+    ],
+    "log": {
+        "last_modified": "2015-11-10 01:35",
+        "extension_builder_version": "7.6-dev",
+        "be_user": "Nikola Stojiljkovic (10)"
+    }
+}

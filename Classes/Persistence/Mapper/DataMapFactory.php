@@ -249,7 +249,7 @@ class DataMapFactory implements SingletonInterface {
 		} else {
 			throw new \TYPO3\CMS\Extbase\Persistence\Generic\Exception\UnsupportedRelationException(
 				'The given information to build a many-to-many-relation was not sufficient. Check your TCA definitions. mm-relations must have at least a defined "MM" or "foreign_selector".',
-				1268817963
+				16
 			);
 		}
 		if ($this->getControlSection($columnMap->getRelationTableName()) !== NULL) {

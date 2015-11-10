@@ -6,7 +6,6 @@ use EssentialDots\EdMigrate\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 /***************************************************************
  *  Copyright notice
  *
@@ -170,7 +169,7 @@ abstract class AbstractEntity {
 	 * @param mixed $uid
 	 */
 	public function setUid($uid) {
-		throw new \BadMethodCallException ('You cannot change uid of a record.');
+		throw new \BadMethodCallException ('You cannot change uid of a record.', 8);
 	}
 
 	/**
@@ -189,7 +188,7 @@ abstract class AbstractEntity {
 		$method = substr($function, 0, 3);
 
 		if ($method !== 'has' && $method !== 'get' && $method !== 'set' && $method !== 'del') {
-			throw new \BadMethodCallException ($function . ' is not defined in ' . get_class($this));
+			throw new \BadMethodCallException ($function . ' is not defined in ' . get_class($this), 9);
 		}
 
 		$dataMap = DataMapFactory::getInstance()->getDataMap($this->tableName);
@@ -198,7 +197,7 @@ abstract class AbstractEntity {
 			if ($method === 'has') {
 				return FALSE;
 			} else {
-				throw new \BadMethodCallException ('Property ' . $propertyName . ' does not exist in ' . get_class($this));
+				throw new \BadMethodCallException('Property ' . $propertyName . ' does not exist in ' . get_class($this), 10);
 			}
 		}
 

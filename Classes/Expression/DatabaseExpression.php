@@ -1,7 +1,6 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /***************************************************************
  *  Copyright notice

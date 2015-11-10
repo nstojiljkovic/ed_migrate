@@ -146,7 +146,7 @@ class PersistenceSession implements SingletonInterface {
 					foreach ($changedFields as $changedField) {
 						$columnMap = $dataMap->getColumnMap($changedField);
 						if (!$columnMap) {
-							throw new \RuntimeException ('Column map could not be found for property ' . $changedField . ' of object ' . get_class($entity) . '.');
+							throw new \RuntimeException('Column map could not be found for property ' . $changedField . ' of object ' . get_class($entity) . '.', 11);
 						}
 //						if ($columnMap->getTypeOfRelation() !== ColumnMap::RELATION_NONE) {
 //							throw new \RuntimeException ('Setting relation fields has not been implemented yet.');

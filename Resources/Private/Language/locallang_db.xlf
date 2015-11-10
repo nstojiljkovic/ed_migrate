@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2015-11-10T13:35:34Z" product-name="ed_migrate">
+		<header/>
+		<body>
+			<trans-unit id="tx_edmigrate_domain_model_log">
+				<source>Log</source>
+			</trans-unit>
+			<trans-unit id="tx_edmigrate_domain_model_log.version">
+				<source>Version</source>
+			</trans-unit>
+			<trans-unit id="tx_edmigrate_domain_model_log.start_time">
+				<source>Start Time</source>
+			</trans-unit>
+			<trans-unit id="tx_edmigrate_domain_model_log.end_time">
+				<source>End Time</source>
+			</trans-unit>
+			<trans-unit id="tx_edmigrate_domain_model_log.namespace">
+				<source>Namespace</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

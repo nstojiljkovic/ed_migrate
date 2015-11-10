@@ -79,9 +79,9 @@ class FileReferencesExpression extends AbstractFileExpression {
 	 * @param $parentTableName
 	 * @param $parentFieldName
 	 * @param $sourceFile
-	 * @param null $sourceFolder
-	 * @param null $targetFolder
-	 * @param null $referenceProperties
+	 * @param mixed $sourceFolder
+	 * @param mixed $targetFolder
+	 * @param array $referenceProperties
 	 */
 	public function __construct($parentUid, $parentPid, $parentTableName, $parentFieldName, $sourceFile, $sourceFolder = NULL, $targetFolder = NULL, array $referenceProperties = NULL) {
 		$this->parentUid = $parentUid;

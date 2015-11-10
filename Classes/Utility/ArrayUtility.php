@@ -52,7 +52,7 @@ class ArrayUtility {
 		$this->matchExpr = array(
 			'CHILD' =>
 				'/^:(first|last|nth|nth-last)-(child)(?:\\(' . $this->whitespace .
-				'*(even|odd|(([+-]|)(\\d*)n|)'  . $this->whitespace . '*(?:([+-]|)' . $this->whitespace .
+				'*(even|odd|(([+-]|)(\\d*)n|)' . $this->whitespace . '*(?:([+-]|)' . $this->whitespace .
 				'*(\\d+)|))' . $this->whitespace . '*\\)|)/i',
 		);
 	}
@@ -164,7 +164,7 @@ class ArrayUtility {
 		if (substr($matches[1], 0, 3) === 'nth') {
 			// nth-* requires argument
 			if (!$matches[3]) {
-				throw new \Exception($matches[0]);
+				throw new \Exception($matches[0], 12);
 			}
 
 			// numeric x and y parameters for Expr.filter.CHILD
@@ -176,7 +176,7 @@ class ArrayUtility {
 
 			// other types prohibit arguments
 		} elseif ($matches[3]) {
-			throw new \Exception($matches[0]);
+			throw new \Exception($matches[0], 13);
 		}
 
 		return $matches;
