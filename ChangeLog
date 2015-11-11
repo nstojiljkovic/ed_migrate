@@ -1,3 +1,11 @@
+Version: 0.0.2
+Subject: [TASK] Implement migration log
+Date:    2015-11-11 08:12:42 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=adc2c9da30814411882124349011afb2f56498f2
+
+Change-Id: I469a1a548f57227cf3ecee38b920efcd16935216
+Related: #2191
+
 Version: 0.1.6
 Subject: [TASK] Implement conflict resolution when multiple elements claim parenthood of the same child
 Date:    2015-11-09 12:30:39 +0100
