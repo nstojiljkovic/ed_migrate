@@ -100,7 +100,9 @@ class UpdateColPosTransformation implements TransformationInterface {
 				}
 
 				$contentElements = $nodeRepository->findBy('tt_content', '(uid IN (' . implode(',', $allUids) . ') OR (l18n_parent = 0 AND pid = ' . (int) $node->getUid() . '))' . $ttContentEnableFields);
-//				$contentElements = $nodeRepository->findBy('tt_content', 'uid IN (' . implode(',', $allUids) . ')' . $ttContentEnableFields);
+//				$contentElements = $nodeRepository->findBy('tt_content',
+//					'(uid IN (' . implode(',', $allUids) . ') OR ((l18n_parent = 0 OR sys_language_uid = 0 OR sys_language_uid = -1) AND pid = ' .
+// 					(int) $node->getUid() . '))' . $ttContentEnableFields);
 				foreach ($contentElements as $contentElement) {
 					$finalColPos = $this->notUsedColPos;
 					$finalSorting = -1;
@@ -136,8 +138,15 @@ class UpdateColPosTransformation implements TransformationInterface {
 			) {
 				$contentElements = $nodeRepository->findBy('tt_content', 'l18n_parent = ' . (int) $node->getUid() . $ttContentEnableFields);
 				foreach ($contentElements as $contentElement) {
-					$contentElement->setSorting($node->getSorting());
-					$contentElement->setColpos($node->getColpos());
+					if ($contentElement->getSysLanguageUid() === $node->getSysLanguageUid()) {
+						// conflict resolution, templavoila can have this kind of weird data
+						$contentElement->setSorting(-1);
+						$contentElement->setColpos($this->notUsedColPos);
+					} else {
+						$contentElement->setSorting($node->getSorting());
+						$contentElement->setColpos($node->getColpos());
+					}
+
 					echo '  \- translation[' . $contentElement->getUid() . '][colPos] => ' . $contentElement->getColpos() . PHP_EOL;
 				}
 			}
