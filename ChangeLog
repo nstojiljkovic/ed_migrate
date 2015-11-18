@@ -1,3 +1,11 @@
+Version: 0.0.3
+Subject: [BUGFIX] Fix for the weird situations when content element has translation in default language
+Date:    2015-11-18 06:27:14 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=07c426ff891190a5916134bb041d1f4449ef7a7f
+
+Change-Id: I6f4d19f4ea27c8a3fede39b45061f657067de9ea
+Related: #2193
+
 Version: 0.0.2
 Subject: [TASK] Implement migration log
 Date:    2015-11-11 08:12:42 +0100
