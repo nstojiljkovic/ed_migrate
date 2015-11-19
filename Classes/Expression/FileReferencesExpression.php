@@ -113,9 +113,15 @@ class FileReferencesExpression extends AbstractFileExpression {
 
 		/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
 		$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
-		$sourceFilesArr = GeneralUtility::trimExplode(',', $sourceFiles, TRUE);
+		if (is_array($sourceFiles)) {
+			$returnArray = TRUE;
+			$sourceFilesArr = &$sourceFiles;
+		} else {
+			$returnArray = FALSE;
+			$sourceFilesArr =  GeneralUtility::trimExplode(',', $sourceFiles, TRUE);
+		}
 		$result = array();
-		foreach ($sourceFilesArr as $sourceFile) {
+		foreach ($sourceFilesArr as $k => $sourceFile) {
 			$sourceFileIdentifier = $sourceFolder . $sourceFile;
 			try {
 				$sourceFileResource = $resourceFactory->getFileObjectFromCombinedIdentifier($sourceFileIdentifier);
@@ -187,10 +193,18 @@ class FileReferencesExpression extends AbstractFileExpression {
 						/** @var \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession */
 						$persistenceSession = $objectManager->get('EssentialDots\\EdMigrate\\Persistence\\PersistenceSession');
 						$persistenceSession->registerEntity('sys_file_reference', $entity->getUid(), $entity);
-						$result[] = $entity->getUid();
+						if ($returnArray) {
+							$result[$k] = $entity->getUid();
+						} else {
+							$result[] = $entity->getUid();
+						}
 					}
 				}
 			}
+		}
+
+		if ($returnArray) {
+			return $result;
 		}
 
 		return implode(',', $result) ?: '0';

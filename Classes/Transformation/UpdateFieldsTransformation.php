@@ -2,6 +2,7 @@
 namespace EssentialDots\EdMigrate\Transformation;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Expression\ExpressionInterface;
+use EssentialDots\EdMigrate\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -77,9 +78,16 @@ class UpdateFieldsTransformation implements TransformationInterface {
 					$evaluatedValue = $value instanceof ExpressionInterface ? $value->evaluate($node) : (string) $value;
 					list($propertyName, $flexFieldPath) = GeneralUtility::trimExplode(':', $propertyNamePath, TRUE, 2);
 					$setter = 'set' . ucfirst($propertyName);
-					echo '  \- ' . $propertyNamePath . ' => ' . $evaluatedValue . PHP_EOL;
+					echo '  \- ' . $propertyNamePath . ' => ' . json_encode($evaluatedValue) . PHP_EOL;
 					if ($flexFieldPath) {
-						$node->$setter($flexFieldPath, $evaluatedValue);
+						$matches = NULL;
+						if (is_array($evaluatedValue) && preg_match('/(.*)\/@each\/(.*)$/msU', $flexFieldPath, $matches) === 1) {
+							foreach ($evaluatedValue as $k => $v) {
+								$node->$setter($matches[1] . '/' . $k . '/' . $matches[2], $v);
+							}
+						} else {
+							$node->$setter($flexFieldPath, $evaluatedValue);
+						}
 					} else {
 						$node->$setter($evaluatedValue);
 					}

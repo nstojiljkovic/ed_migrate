@@ -1,6 +1,7 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
+use EssentialDots\EdMigrate\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -59,6 +60,17 @@ class FlexFieldExpression implements ExpressionInterface {
 		$flexFieldPath = $this->flexFieldPath instanceof ExpressionInterface ? $this->flexFieldPath->evaluate($node) : (string) $this->flexFieldPath;
 		$getter = 'get' . ucfirst($flexPropertyName);
 
-		return $node->$getter($flexFieldPath);
+		$matches = NULL;
+		if (preg_match('/(.*)\/@each\/(.*)$/msU', $flexFieldPath, $matches) === 1) {
+			$arr = $node->$getter($matches[1]);
+			$value = array();
+			foreach ($arr as $k => &$v) {
+				$value[$k] = ArrayUtility::getInstance()->getByKey($v, $matches[2], NULL, '/');
+			}
+		} else {
+			$value = $node->$getter($flexFieldPath);
+		}
+
+		return $value;
 	}
 }

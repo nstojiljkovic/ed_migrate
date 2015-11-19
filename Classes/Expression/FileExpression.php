@@ -63,14 +63,35 @@ class FileExpression extends AbstractFileExpression {
 	 * @return string
 	 */
 	public function evaluate(AbstractEntity $node) {
-		$sourceFile = $this->sourceFile instanceof ExpressionInterface ? $this->sourceFile->evaluate($node) : (string) $this->sourceFile;
+		$sourceFile = $this->sourceFile instanceof ExpressionInterface ? $this->sourceFile->evaluate($node) : (string)$this->sourceFile;
 		if (!$sourceFile) {
 			return '';
 		}
 
-		$sourceFolder = $this->sourceFolder instanceof ExpressionInterface ? $this->sourceFolder->evaluate($node) : (string) $this->sourceFolder;
-		$targetFolder = $this->targetFolder instanceof ExpressionInterface ? $this->targetFolder->evaluate($node) : (string) $this->targetFolder;
+		$sourceFolder = $this->sourceFolder instanceof ExpressionInterface ? $this->sourceFolder->evaluate($node) : (string)$this->sourceFolder;
+		$targetFolder = $this->targetFolder instanceof ExpressionInterface ? $this->targetFolder->evaluate($node) : (string)$this->targetFolder;
 
+		if (is_array($sourceFile)) {
+			$result = array();
+			foreach ($sourceFile as $k => &$v) {
+				$result[$k] = $this->evaluateSingleFile($sourceFolder, $v, $targetFolder);
+			}
+
+			return $result;
+		}
+
+		return $this->evaluateSingleFile($sourceFolder, $sourceFile, $targetFolder);
+	}
+
+	/**
+	 * @param $sourceFolder
+	 * @param $sourceFile
+	 * @param $targetFolder
+	 * @return string
+	 * @throws \Exception
+	 * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
+	 */
+	protected function evaluateSingleFile($sourceFolder, $sourceFile, $targetFolder) {
 		/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
 		$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
 		$sourceFileIdentifier = $sourceFolder . $sourceFile;
