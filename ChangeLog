@@ -1,3 +1,11 @@
+Version: 0.0.4
+Subject: [TASK] Support for @each Flex form path selector and processing of array values
+Date:    2015-11-19 18:34:18 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=fd45729bd508dcf68fc4c6b1edf74bf8b30e67af
+
+Change-Id: I204a965005c6809ac1bb94ef97f289e88f11f28a
+Related: #2199
+
 Version: 0.0.3
 Subject: [BUGFIX] Fix for the weird situations when content element has translation in default language
 Date:    2015-11-18 06:27:14 +0100
