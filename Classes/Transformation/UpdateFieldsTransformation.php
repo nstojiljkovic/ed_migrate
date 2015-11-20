@@ -86,7 +86,7 @@ class UpdateFieldsTransformation implements TransformationInterface {
 								$node->$setter($matches[1] . '/' . $k . '/' . $matches[2], $v);
 							}
 						} else {
-							$node->$setter($flexFieldPath, $evaluatedValue);
+							$node->$setter($flexFieldPath, is_array($evaluatedValue) ? implode(',', $evaluatedValue) : $evaluatedValue);
 						}
 					} else {
 						$node->$setter($evaluatedValue);
