@@ -1,3 +1,11 @@
+Version: 0.0.5
+Subject: [TASK] Add edmigrate:databaseDiff and edmigrate:create commands
+Date:    2015-11-20 13:57:12 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=1b7bd63ece72ca8207357516970a8f010674340c
+
+Change-Id: Iba3b9b26b169963057957e2084d43858e1c1ce7b
+Related: #2201
+
 Version: 0.0.4
 Subject: [TASK] Support for @each Flex form path selector and processing of array values
 Date:    2015-11-19 18:34:18 +0100
