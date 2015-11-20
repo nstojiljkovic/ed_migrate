@@ -33,4 +33,14 @@ namespace EssentialDots\EdMigrate\Domain\Repository;
  */
 class LogRepository extends \TYPO3\CMS\Extbase\Persistence\Repository {
 
+	/**
+	 * Injects query settings object.
+	 *
+	 * @param \TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface $querySettings The Query Settings
+	 * @return void
+	 */
+	public function injectQuerySettings(\TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface $querySettings) {
+		$querySettings->setRespectStoragePage(FALSE);
+		$this->setDefaultQuerySettings($querySettings);
+	}
 }

@@ -62,10 +62,11 @@ class FlexFieldExpression implements ExpressionInterface {
 
 		$matches = NULL;
 		if (preg_match('/(.*)\/@each\/(.*)$/msU', $flexFieldPath, $matches) === 1) {
-			$arr = $node->$getter($matches[1]);
 			$value = array();
-			foreach ($arr as $k => &$v) {
-				$value[$k] = ArrayUtility::getInstance()->getByKey($v, $matches[2], NULL, '/');
+			if (is_array($arr = $node->$getter($matches[1]))) {
+				foreach ($arr as $k => &$v) {
+					$value[$k] = ArrayUtility::getInstance()->getByKey($v, $matches[2], NULL, '/');
+				}
 			}
 		} else {
 			$value = $node->$getter($flexFieldPath);

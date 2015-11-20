@@ -24,6 +24,7 @@ namespace EssentialDots\EdMigrate\Command;
  ***************************************************************/
 
 use EssentialDots\EdMigrate\Brancher\RelationBrancher;
+use EssentialDots\EdMigrate\Database\SqlHandler;
 use EssentialDots\EdMigrate\Expression\SymfonyLanguageExpression;
 use EssentialDots\EdMigrate\Migration\MigrationInterface;
 use EssentialDots\EdMigrate\Migration\PageRecursiveMigrationInterface;
@@ -71,6 +72,96 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 	 * @inject
 	 */
 	protected $persistenceSession;
+
+	/**
+	 * Prints a list of database differences between SQL files across TYPO3
+	 * extensions and actual database state
+	 *
+	 * @param bool $addRemovalQueries
+	 * @cli
+	 * @return void
+	 */
+	public function databaseDiffCommand($addRemovalQueries = FALSE) {
+		$statements = SqlHandler::getInstance()->getStructureUpdateSql($addRemovalQueries);
+		$this->output(implode(PHP_EOL, $statements) . PHP_EOL);
+	}
+
+	/**
+	 * Creates a migration based on the database differences
+	 *
+	 * @param string $namespace
+	 * @param string $migrationName
+	 * @param bool $addRemovalQueries
+	 * @cli
+	 * @return void
+	 */
+	public function createCommand($namespace, $migrationName, $addRemovalQueries = FALSE) {
+		if (strpos($migrationName, '_') !== FALSE) {
+			throw new \RuntimeException('Please provide migrationName in camel case!');
+		}
+		$statements = SqlHandler::getInstance()->getStructureUpdateSql($addRemovalQueries);
+		if (count($statements)) {
+			if ('\\' == $namespace[0]) {
+				$namespace = substr($namespace, 1);
+			}
+			$namespaceArr = explode('\\', $namespace);
+			// shift company name
+			$company = array_shift($namespaceArr);
+			$extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored(array_shift($namespaceArr));
+
+			if (ExtensionManagementUtility::isLoaded($extensionKey)) {
+				array_unshift($namespaceArr, 'Classes');
+				$folder = ExtensionManagementUtility::extPath($extensionKey, implode(DIRECTORY_SEPARATOR, $namespaceArr));
+				if (!@file_exists($folder)) {
+					if (!mkdir($folder, octdec($GLOBALS['TYPO3_CONF_VARS']['BE']['folderCreateMask']), TRUE)) {
+						throw new \RuntimeException('Could not create folder: ' . $folder);
+					}
+					GeneralUtility::fixPermissions($folder);
+				}
+
+				$migrationName = ucfirst($migrationName);
+				$indent = '		';
+				$statementWrap = array(
+					'$this->getDatabase()->sql_query(<<<SQL' . PHP_EOL . $indent . $indent[0],
+					PHP_EOL . 'SQL' . PHP_EOL . $indent . ');' . PHP_EOL . $indent . '$this->output->output(\'.\');' . PHP_EOL);
+				$className = 'Migration' . date('YmdHis') . $migrationName;
+				array_walk($statements, function(&$value, $key, $statementWrap) {
+					$value = $statementWrap[0] . $value . $statementWrap[1];
+				}, $statementWrap);
+
+				$res = file_put_contents(
+					$folder . DIRECTORY_SEPARATOR . $className . '.php',
+					str_replace(
+						array (
+							'###YEAR###',
+							'###COMPANY###',
+							'###CLASS-NAME###',
+							'###NAMESPACE###',
+							'###STATEMENTS###'
+						),
+						array (
+							date('Y'),
+							$company,
+							$className,
+							$namespace,
+							implode(PHP_EOL . $indent, $statements)
+						),
+						file_get_contents(
+							ExtensionManagementUtility::extPath('ed_migrate', 'Resources/Private/Templates/Migration/MigrationTemplate.tmpl')
+						)
+					)
+				);
+				if ($res !== FALSE) {
+					$this->outputLine($this->cliSuccessWrap('Migration ' . $namespace . '\\' . $className . ' created successfully.', TRUE));
+				} else {
+					$this->outputLine($this->cliErrorWrap('Migration ' . $namespace . '\\' . $className . ' has not been created successfully.', TRUE));
+				}
+			}
+
+		} else {
+			$this->outputLine($this->cliPendingWrap('No changes found. Migration not created.'));
+		}
+	}
 
 	/**
 	 * Prints a list of all migrations, along with their current status
