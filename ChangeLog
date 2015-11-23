@@ -1,3 +1,11 @@
+Version: 0.0.6
+Subject: [BUGFIX] Always implode array values to string when setting flex form paths with @each segment
+Date:    2015-11-20 22:52:41 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=09ec9fb78a2292dde2b92ca4a10e6b33756e1ea0
+
+Change-Id: I9b84613245b6b8bc0a1b53a81c93cf9be46488f8
+Related: #2199
+
 Version: 0.0.5
 Subject: [TASK] Add edmigrate:databaseDiff and edmigrate:create commands
 Date:    2015-11-20 13:57:12 +0100
