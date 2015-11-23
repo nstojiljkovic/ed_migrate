@@ -1,3 +1,11 @@
+Version: 0.0.7
+Subject: [CLEANUP] Dependency cleanup
+Date:    2015-11-23 16:17:40 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=ff7b6634679c68355a866d388f4b61f50cf665ad
+
+Change-Id: I6218b2a3dbc3e6c67681719745a70ac899fa64a5
+Related: #2201
+
 Version: 0.0.6
 Subject: [BUGFIX] Always implode array values to string when setting flex form paths with @each segment
 Date:    2015-11-20 22:52:41 +0100
