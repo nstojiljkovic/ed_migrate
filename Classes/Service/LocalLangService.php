@@ -82,7 +82,11 @@ class LocalLangService implements SingletonInterface {
 					$sourceTranslationFileCombinedIdentifier = $sourceFolder->getCombinedIdentifier() . $sourceFileName;
 					$sourceTranslationFile = $resourceFactory->getFileObjectFromCombinedIdentifier($sourceTranslationFileCombinedIdentifier);
 					if ($sourceTranslationFile) {
-						$destinationFolder = $languageFolder->createFolder($destinationFilePath);
+						if ($languageFolder->hasFolder($destinationFilePath)) {
+							$destinationFolder = $languageFolder->getSubfolder($destinationFilePath);
+						} else {
+							$destinationFolder = $languageFolder->createFolder($destinationFilePath);
+						}
 						$destinationTranslationFile = $sourceTranslationFile->copyTo($destinationFolder, $destinationFileName, DuplicationBehavior::REPLACE);
 						if ($destinationTranslationFile) {
 							$processedFiles[$sourceTranslationFile->getIdentifier()] = $destinationTranslationFile->getIdentifier();

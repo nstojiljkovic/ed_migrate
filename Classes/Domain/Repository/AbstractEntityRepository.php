@@ -61,6 +61,7 @@ abstract class AbstractEntityRepository implements SingletonInterface {
 		while (($row = $this->getDatabase()->sql_fetch_assoc($res))) {
 			if (($entity = $this->persistenceSession->getRegisteredEntity($tableName, $row['uid'])) === FALSE) {
 				$entityClassName = ClassNamingUtility::translateRepositoryNameToModelName(get_class($this));
+				/** @var AbstractEntity $entity */
 				$entity = GeneralUtility::makeInstance($entityClassName, $tableName, $row);
 				$this->persistenceSession->registerEntity($tableName, $row['uid'], $entity);
 			}
@@ -79,12 +80,11 @@ abstract class AbstractEntityRepository implements SingletonInterface {
 	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
 	 */
 	protected function getDatabase() {
-		$result = NULL;
+		$result = $GLOBALS['TYPO3_DB'];
 
 		if (ExtensionManagementUtility::isLoaded('ed_scale')) {
-			$result = $GLOBALS['TYPO3_DB']->getConnectionByName('default');
-		} else {
-			$result = $GLOBALS['TYPO3_DB'];
+			/** @var \EssentialDots\EdScale\Database\DatabaseConnection $result */
+			$result = $result->getConnectionByName('default');
 		}
 
 		return $result;

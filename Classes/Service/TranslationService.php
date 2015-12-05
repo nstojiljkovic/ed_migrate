@@ -296,12 +296,11 @@ class TranslationService implements SingletonInterface {
 	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
 	 */
 	protected function getDatabase() {
-		$result = NULL;
+		$result = $GLOBALS['TYPO3_DB'];
 
 		if (ExtensionManagementUtility::isLoaded('ed_scale')) {
-			$result = $GLOBALS['TYPO3_DB']->getConnectionByName('default');
-		} else {
-			$result = $GLOBALS['TYPO3_DB'];
+			/** @var \EssentialDots\EdScale\Database\DatabaseConnection $result */
+			$result = $result->getConnectionByName('default');
 		}
 
 		return $result;

@@ -118,9 +118,13 @@ class DataMapFactory implements SingletonInterface {
 	 */
 	protected function setType(ColumnMap $columnMap, $columnConfiguration) {
 		$tableColumnType = (isset($columnConfiguration['type'])) ? $columnConfiguration['type'] : NULL;
-		$columnMap->setType(\TYPO3\CMS\Core\DataHandling\TableColumnType::cast($tableColumnType));
+		/** @var \TYPO3\CMS\Core\DataHandling\TableColumnType $tableColumnType */
+		$tableColumnType = \TYPO3\CMS\Core\DataHandling\TableColumnType::cast($tableColumnType);
+		$columnMap->setType($tableColumnType);
 		$tableColumnSubType = (isset($columnConfiguration['internal_type'])) ? $columnConfiguration['internal_type'] : NULL;
-		$columnMap->setInternalType(\TYPO3\CMS\Core\DataHandling\TableColumnSubType::cast($tableColumnSubType));
+		/** @var \TYPO3\CMS\Core\DataHandling\TableColumnSubType $tableColumnSubType */
+		$tableColumnSubType = \TYPO3\CMS\Core\DataHandling\TableColumnSubType::cast($tableColumnSubType);
+		$columnMap->setInternalType($tableColumnSubType);
 
 		return $columnMap;
 	}

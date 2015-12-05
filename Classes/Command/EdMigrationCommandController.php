@@ -485,7 +485,11 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 			foreach ($childPids as $pid) {
 				pcntl_waitpid($pid, $status);
 			}
-			if (!$this->getDatabase()->isConnected()) {
+			$databaseConnection = $this->getDatabase();
+			if (method_exists($databaseConnection, '__sleep')) {
+				$databaseConnection->__sleep();
+				$this->getDatabase()->connectDB();
+			} elseif (!$this->getDatabase()->isConnected()) {
 				$this->getDatabase()->connectDB();
 			}
 		} else {

@@ -2,7 +2,6 @@
 namespace EssentialDots\EdMigrate\Transformation;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Expression\ExpressionInterface;
-use EssentialDots\EdMigrate\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************

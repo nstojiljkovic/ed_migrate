@@ -1,7 +1,5 @@
 <?php
 namespace EssentialDots\EdMigrate\Database;
-use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
-use EssentialDots\EdMigrate\Expression\ExpressionInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -103,8 +101,8 @@ class SqlHandler implements SingletonInterface {
 	/**
 	 * Executes the database structure updates.
 	 *
-	 * @param array $arguments Optional arguemtns passed to this action
-	 * @param boolean $allowKeyModifications Whether to allow key modifications
+	 * @param bool $isRemovalEnabled
+	 * @param bool $allowKeyModifications
 	 * @return array
 	 */
 	public function getStructureUpdateSql($isRemovalEnabled = FALSE, $allowKeyModifications = FALSE) {
@@ -188,7 +186,7 @@ class SqlHandler implements SingletonInterface {
 	protected function getStructureDifferencesForUpdate($database, $allowKeyModifications = FALSE) {
 		$differences = $this->sqlHandler->getDatabaseExtra(
 			$this->getDefinedFieldDefinitions(),
-			$this->sqlHandler->getFieldDefinitions_database($database)
+			$this->sqlHandler->getFieldDefinitions_database()
 		);
 
 		if (!$allowKeyModifications) {
@@ -211,7 +209,7 @@ class SqlHandler implements SingletonInterface {
 	 */
 	protected function getStructureDifferencesForRemoval($database, $allowKeyModifications = FALSE) {
 		$differences = $this->sqlHandler->getDatabaseExtra(
-			$this->sqlHandler->getFieldDefinitions_database($database),
+			$this->sqlHandler->getFieldDefinitions_database(),
 			$this->getDefinedFieldDefinitions()
 		);
 
@@ -237,7 +235,7 @@ class SqlHandler implements SingletonInterface {
 			$content .= chr(10) . $databaseSchemaService->getCachingFrameworkRequiredDatabaseSchema();
 		} elseif (class_exists('\TYPO3\CMS\Core\Cache\Cache')) {
 			// Add SQL content coming from the caching framework
-			$content .= chr(10) . \TYPO3\CMS\Core\Cache\Cache::getDatabaseTableDefinitions();
+			$content .= chr(10) . call_user_func('TYPO3\\CMS\\Core\\Cache\\Cache::getDatabaseTableDefinitions');
 		}
 
 		if (class_exists('\TYPO3\CMS\Core\Category\CategoryRegistry')) {
@@ -248,7 +246,7 @@ class SqlHandler implements SingletonInterface {
 		if (method_exists($this->sqlHandler, 'getFieldDefinitions_fileContent')) {
 			$result = $this->sqlHandler->getFieldDefinitions_fileContent($content);
 		} else {
-			$result = $this->sqlHandler->getFieldDefinitions_sqlContent($content);
+			$result = call_user_func(array($this, 'getFieldDefinitions_sqlContent'), $content);
 		}
 
 		return $result;
@@ -261,11 +259,7 @@ class SqlHandler implements SingletonInterface {
 	 */
 	protected function getAllRawStructureDefinitions() {
 		$rawDefinitions = array();
-		if (ExtensionManagementUtility::isLoaded('core')) {
-			$rawDefinitions[] = file_get_contents(ExtensionManagementUtility::extPath('core', 'ext_tables.sql'));
-		} else {
-			$rawDefinitions[] = file_get_contents(PATH_t3lib . 'stddb/tables.sql');
-		}
+		$rawDefinitions[] = file_get_contents(ExtensionManagementUtility::extPath('core', 'ext_tables.sql'));
 
 		foreach ($this->loadedExtensions as $key => $extension) {
 			if (is_array($extension) && $extension['ext_tables.sql']) {

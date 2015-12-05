@@ -176,8 +176,8 @@ abstract class AbstractEntity {
 	 * Magic function to provide get and set Methods for "row" attributes.
 	 *
 	 *
-	 * @param $function Object
-	 * @param $args Object
+	 * @param string $function
+	 * @param array $args
 	 * @access public
 	 * @throws \RuntimeException
 	 * @throws \BadMethodCallException

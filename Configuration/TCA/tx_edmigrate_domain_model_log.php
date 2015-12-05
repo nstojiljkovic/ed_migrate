@@ -1,4 +1,5 @@
 <?php
+$_EXTKEY = 'ed_migrate';
 return array(
 	'ctrl' => array(
 		'title'	=> 'LLL:EXT:ed_migrate/Resources/Private/Language/locallang_db.xlf:tx_edmigrate_domain_model_log',
@@ -12,7 +13,7 @@ return array(
 
 		),
 		'searchFields' => 'version,start_time,end_time,namespace,',
-		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('ed_migrate') . 'Resources/Public/Icons/tx_edmigrate_domain_model_log.gif'
+		'iconfile' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/tx_edmigrate_domain_model_log.gif'
 	),
 	'interface' => array(
 		'showRecordFieldList' => 'version, start_time, end_time, namespace',

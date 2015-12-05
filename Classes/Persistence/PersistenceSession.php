@@ -118,7 +118,6 @@ class PersistenceSession implements SingletonInterface {
 		$tce = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Core\\Database\\DataHandler');
 		$tce->process_datamap();
 		$tce->enableLogging = FALSE;
-		$tce->stripslashes_values = FALSE;
 		$tce->checkSimilar = FALSE;
 		$tce->reverseOrder = TRUE;
 		$tce->checkStoredRecords = FALSE;
