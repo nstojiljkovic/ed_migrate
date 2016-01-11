@@ -1,3 +1,11 @@
+Version: 0.0.8
+Subject: [BUGFIX] TYPO3 7.6 compatibility fix
+Date:    2015-12-18 17:56:34 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=a0d4c8f0277dc869f6b7a20259ebdcf18b4b1535
+
+Change-Id: I768bea6e7bc661c417b8d306eb7ac3920b00e165
+Related: #2229
+
 Version: 0.0.7
 Subject: [CLEANUP] Dependency cleanup
 Date:    2015-11-23 16:17:40 +0100
