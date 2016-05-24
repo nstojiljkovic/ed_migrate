@@ -56,4 +56,13 @@ class DataHandler extends \TYPO3\CMS\Core\DataHandling\DataHandler {
 	public function checkRecordUpdateAccess($table, $id, $data = FALSE, $hookObjectsArr = NULL) {
 		return TRUE;
 	}
+
+	/**
+	 * Do the actual clear cache
+	 *
+	 * @return void
+	 */
+	protected function processClearCacheQueue() {
+		// do nothing
+	}
 }
