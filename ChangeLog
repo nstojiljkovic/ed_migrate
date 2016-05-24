@@ -1,3 +1,13 @@
+Version: 0.0.9
+Subject: [TASK] Prevent aggressive clearing of cache during migrations
+Date:    2016-05-24 12:08:41 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=4213e6cc1c4057fa6f932b7baf81b596115e99dd
+
+Each DataHandler->process_datamap used to clear complete cache which was
+unnecessary.
+
+Change-Id: I704d3ae5a2247bb76064adb7af6e40f4213fa592
+
 Version: 0.0.8
 Subject: [BUGFIX] TYPO3 7.6 compatibility fix
 Date:    2015-12-18 17:56:34 +0100
