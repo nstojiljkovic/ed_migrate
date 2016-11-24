@@ -180,7 +180,9 @@ class FileReferencesExpression extends AbstractFileExpression {
 						$entity->setTablenames($parentTableName);
 						$entity->setFieldname($parentFieldName);
 						$entity->setPid($parentPid);
-						$entity->setSorting(count($result) + 1);
+						if ($entity->hasSorting()) {
+							$entity->setSorting(count($result) + 1);
+						}
 						$entity->setTableLocal('sys_file');
 						if (is_array($this->referenceProperties)) {
 							foreach ($this->referenceProperties as $key => $value) {

@@ -115,7 +115,7 @@ class PersistenceSession implements SingletonInterface {
 		$GLOBALS['TYPO3_DB'] = new \EssentialDots\EdMigrate\Core\Database\DatabaseConnection($oldDb, $this);
 
 		/** @var \TYPO3\CMS\Core\DataHandling\DataHandler $tce */
-		$tce = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Core\\Database\\DataHandler');
+		$tce = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Core\\DataHandling\\DataHandler');
 		$tce->process_datamap();
 		$tce->enableLogging = FALSE;
 		$tce->checkSimilar = FALSE;

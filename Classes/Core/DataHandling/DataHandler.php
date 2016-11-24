@@ -1,6 +1,6 @@
 <?php
 
-namespace EssentialDots\EdMigrate\Core\Database;
+namespace EssentialDots\EdMigrate\Core\DataHandling;
 
 /***************************************************************
  *  Copyright notice
@@ -23,6 +23,7 @@ namespace EssentialDots\EdMigrate\Core\Database;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 
 /**

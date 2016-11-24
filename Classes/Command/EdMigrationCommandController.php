@@ -123,7 +123,7 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 				$indent = '		';
 				$statementWrap = array(
 					'$this->getDatabase()->sql_query(<<<SQL' . PHP_EOL . $indent . $indent[0],
-					PHP_EOL . 'SQL' . PHP_EOL . $indent . ');' . PHP_EOL . $indent . '$this->output->output(\'.\');' . PHP_EOL);
+					PHP_EOL . 'SQL' . PHP_EOL . $indent . ');' . PHP_EOL . $indent . '$this->output(\'.\');' . PHP_EOL);
 				$className = 'Migration' . date('YmdHis') . $migrationName;
 				array_walk($statements, function(&$value, $key, $statementWrap) {
 					$value = $statementWrap[0] . $value . $statementWrap[1];
@@ -362,7 +362,7 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 
 			$timeElapsedSecs = microtime(TRUE) - $start;
 
-			$this->output->outputLine('Finished in ' . $timeElapsedSecs . 's');
+			$this->outputLine('Finished in ' . $timeElapsedSecs . 's');
 		} else {
 			throw new \RuntimeException('Migration ' . $migration . ' is not an instance of PageRecursiveMigrationInterface!', 6);
 		}
@@ -471,7 +471,7 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 					});
 
 					$i++;
-					$this->output->outputLine('Running command [' . $i . '/' . $totalCommands . ']: ' . $command);
+					$this->outputLine('Running command [' . $i . '/' . $totalCommands . ']: ' . $command);
 					$command = PATH_site . $command;
 					$returnVar = NULL;
 					passthru($command, $returnVar);
@@ -496,7 +496,7 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 			$i = 0;
 			foreach ($commands as $command) {
 				$i++;
-				$this->output->outputLine('Running command [' . $i . '/' . $totalCommands . ']: ' . $command);
+				$this->outputLine('Running command [' . $i . '/' . $totalCommands . ']: ' . $command);
 				$command = PATH_site . $command;
 				$returnVar = NULL;
 				passthru($command, $returnVar);
@@ -613,7 +613,7 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 			$table .= PHP_EOL;
 		}
 
-		$this->output->output($table);
+		$this->output($table);
 	}
 
 	/**
