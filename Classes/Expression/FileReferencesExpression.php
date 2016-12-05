@@ -165,41 +165,46 @@ class FileReferencesExpression extends AbstractFileExpression {
 					}
 
 					$targetFolderResource = $resourceFactory->getFolderObjectFromCombinedIdentifier($decodedUid);
-					if (($targetFile = $this->findExistingFileByStorageFolderAndSha1($storageUid, '/' . $sanitizedFullPath, $sourceFileResource->getSha1())) === NULL) {
-						$targetFile = $sourceFileResource->copyTo($targetFolderResource);
-					}
-
-					if ($targetFile) {
-						/** @var Node $entity */
-						$entity = GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Domain\\Model\\Node', 'sys_file_reference', array());
-						$entity->setUidLocal($targetFile->getUid());
-						$entity->setSysLanguageUid(0);
-						$entity->setL10nParent(0);
-						$entity->setHidden(0);
-						$entity->setUidForeign($parentUid);
-						$entity->setTablenames($parentTableName);
-						$entity->setFieldname($parentFieldName);
-						$entity->setPid($parentPid);
-						if ($entity->hasSorting()) {
-							$entity->setSorting(count($result) + 1);
+					try {
+						if (($targetFile = $this->findExistingFileByStorageFolderAndSha1($storageUid, '/' . $sanitizedFullPath, $sourceFileResource->getSha1())) === NULL) {
+							$targetFile = $sourceFileResource->copyTo($targetFolderResource);
 						}
-						$entity->setTableLocal('sys_file');
-						if (is_array($this->referenceProperties)) {
-							foreach ($this->referenceProperties as $key => $value) {
-								$valueSetter = 'set' . ucfirst($key);
-								$entity->$valueSetter($value instanceof ExpressionInterface ? $value->evaluate($node) : (string) $value);
+
+						if ($targetFile) {
+							/** @var Node $entity */
+							$entity = GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Domain\\Model\\Node', 'sys_file_reference', array());
+							$entity->setUidLocal($targetFile->getUid());
+							$entity->setSysLanguageUid(0);
+							$entity->setL10nParent(0);
+							$entity->setHidden(0);
+							$entity->setUidForeign($parentUid);
+							$entity->setTablenames($parentTableName);
+							$entity->setFieldname($parentFieldName);
+							$entity->setPid($parentPid);
+							if ($entity->hasSorting()) {
+								$entity->setSorting(count($result) + 1);
+							}
+							$entity->setTableLocal('sys_file');
+							if (is_array($this->referenceProperties)) {
+								foreach ($this->referenceProperties as $key => $value) {
+									$valueSetter = 'set' . ucfirst($key);
+									$entity->$valueSetter($value instanceof ExpressionInterface ? $value->evaluate($node) : (string) $value);
+								}
+							}
+							/** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
+							$objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
+							/** @var \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession */
+							$persistenceSession = $objectManager->get('EssentialDots\\EdMigrate\\Persistence\\PersistenceSession');
+							$persistenceSession->registerEntity('sys_file_reference', $entity->getUid(), $entity);
+							if ($returnArray) {
+								$result[$k] = $entity->getUid();
+							} else {
+								$result[] = $entity->getUid();
 							}
 						}
-						/** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-						$objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
-						/** @var \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession */
-						$persistenceSession = $objectManager->get('EssentialDots\\EdMigrate\\Persistence\\PersistenceSession');
-						$persistenceSession->registerEntity('sys_file_reference', $entity->getUid(), $entity);
-						if ($returnArray) {
-							$result[$k] = $entity->getUid();
-						} else {
-							$result[] = $entity->getUid();
-						}
+					} catch (\Exception $e) {
+						echo '  \- EXCEPTION ' . $e->getCode() . ': ' . $e->getMessage();
+						$targetFile = NULL;
 					}
 				}
 			}
