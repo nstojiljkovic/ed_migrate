@@ -1,3 +1,11 @@
+Version: 0.0.12
+Subject: [BUGFIX] Log all exceptions occurred while copying the referenced files
+Date:    2016-12-12 15:45:39 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=54f95c0070e28eb0f11c5b5b14dd8ce45ac1b381
+
+Change-Id: I6c5a81acb3d595746e45b476a12bf170cf573a97
+Related: #TP-4186
+
 Version: 0.0.11
 Subject: [TASK] Backwards TYPO3 6.2 compatibility added
 Date:    2016-11-24 16:55:46 +0100
