@@ -116,6 +116,7 @@ class PersistenceSession implements SingletonInterface {
 
 		/** @var \TYPO3\CMS\Core\DataHandling\DataHandler $tce */
 		$tce = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Core\\DataHandling\\DataHandler');
+		$tce->BE_USER = $GLOBALS['BE_USER'];
 		$tce->process_datamap();
 		$tce->enableLogging = FALSE;
 		$tce->checkSimilar = FALSE;
