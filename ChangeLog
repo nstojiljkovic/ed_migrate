@@ -1,3 +1,11 @@
+Version: 0.0.14
+Subject: [TASK] TYPO3 8.7 compatibility update
+Date:    2017-12-13 09:05:56 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=8a6f473bc059e9a3d6c96faa8abeb6022b92f009
+
+Change-Id: I0937ce0e7ff592610ae3b5d871d827b9e50ff432
+Related: #TP-4499
+
 Version: 0.0.13
 Subject: [TASK] Add basic documentation
 Date:    2016-12-14 09:57:25 +0100
