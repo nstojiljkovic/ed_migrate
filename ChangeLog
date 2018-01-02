@@ -1,3 +1,11 @@
+Version: 0.0.15
+Subject: [TASK] Proper TYPO3 8.7 LTS support for databasediff CLI action
+Date:    2018-01-02 21:29:47 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=b75e052902e2037cd7a67a7dae8034c5e1d9d4e8
+
+Change-Id: I09713f3830fcaab982e3392f0563876cfe7acc75
+Related: #TP-4541
+
 Version: 0.0.14
 Subject: [TASK] TYPO3 8.7 compatibility update
 Date:    2017-12-13 09:05:56 +0100
