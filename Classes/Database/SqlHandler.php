@@ -106,31 +106,61 @@ class SqlHandler implements SingletonInterface {
 	 * @return array
 	 */
 	public function getStructureUpdateSql($isRemovalEnabled = FALSE, $allowKeyModifications = FALSE) {
-		$database = $GLOBALS['TYPO3_DB'];
+		if (version_compare(TYPO3_version, 8.0, '>=')) {
+			/** @var \TYPO3\CMS\Core\Database\Schema\SqlReader $sqlReader */
+			$sqlReader = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Schema\SqlReader::class);
+			$sqlStatements = $sqlReader->getCreateTableStatementArray($sqlReader->getTablesDefinitionString());
 
-		$changes = $this->sqlHandler->getUpdateSuggestions(
-			$this->getStructureDifferencesForUpdate($database, $allowKeyModifications)
-		);
+			/** @var \TYPO3\CMS\Core\Database\Schema\SchemaMigrator $schemaMigrationService */
+			$schemaMigrationService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Schema\SchemaMigrator::class);
 
-		if ($isRemovalEnabled) {
-			// Disable the delete prefix, thus tables and fields can be removed directly:
-			$this->sqlHandler->setDeletedPrefixKey('');
-			// Add types considered for removal:
-			$this->addConsideredTypes($this->getRemoveTypes());
-			// Merge update suggestions:
-			$removals = $this->sqlHandler->getUpdateSuggestions(
-				$this->getStructureDifferencesForRemoval($database, $allowKeyModifications),
-				'remove'
+			$addCreateChange = $schemaMigrationService->getUpdateSuggestions($sqlStatements, FALSE);
+			// Aggregate the per-connection statements into one flat array
+			$addCreateChange = array_merge_recursive(...array_values($addCreateChange));
+
+			$statements = array_merge_recursive(...array_values($addCreateChange));
+
+			if ($isRemovalEnabled) {
+				// Difference from current to expected
+				$dropRename = $schemaMigrationService->getUpdateSuggestions($sqlStatements, TRUE);
+				// Aggregate the per-connection statements into one flat array
+				$dropRename = array_merge_recursive(...array_values($dropRename));
+				$statements += array_merge_recursive(...array_values($dropRename));
+			}
+
+			$statements = array_filter($statements, function ($v) {
+				return is_string($v);
+			});
+			$statements = array_map(function ($s) {
+				return str_replace(',', ",\n", $s) . ';';
+			}, $statements);
+		} else {
+			$database = $GLOBALS['TYPO3_DB'];
+
+			$changes = $this->sqlHandler->getUpdateSuggestions(
+				$this->getStructureDifferencesForUpdate($database, $allowKeyModifications)
 			);
-			$changes = array_merge($changes, $removals);
-		}
 
-		$statements = array();
+			if ($isRemovalEnabled) {
+				// Disable the delete prefix, thus tables and fields can be removed directly:
+				$this->sqlHandler->setDeletedPrefixKey('');
+				// Add types considered for removal:
+				$this->addConsideredTypes($this->getRemoveTypes());
+				// Merge update suggestions:
+				$removals = $this->sqlHandler->getUpdateSuggestions(
+					$this->getStructureDifferencesForRemoval($database, $allowKeyModifications),
+					'remove'
+				);
+				$changes = array_merge($changes, $removals);
+			}
 
-		// Concatenates all statements:
-		foreach ($this->consideredTypes as $consideredType) {
-			if (isset($changes[$consideredType]) && is_array($changes[$consideredType])) {
-				$statements += $changes[$consideredType];
+			$statements = array();
+
+			// Concatenates all statements:
+			foreach ($this->consideredTypes as $consideredType) {
+				if (isset($changes[$consideredType]) && is_array($changes[$consideredType])) {
+					$statements += $changes[$consideredType];
+				}
 			}
 		}
 
