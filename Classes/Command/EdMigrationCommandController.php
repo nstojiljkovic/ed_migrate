@@ -485,6 +485,19 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 			foreach ($childPids as $pid) {
 				pcntl_waitpid($pid, $status);
 			}
+
+			if (version_compare(TYPO3_version, 8.0, '>=')) {
+				/** @var \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool */
+				$connectionPool = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class);
+				foreach ($connectionPool->getConnectionNames() as $connectionName) {
+					$connection = $connectionPool->getConnectionByName($connectionName);
+					if (!$connection->isConnected() || !$connection->ping()) {
+						$connection->close();
+						$connection->connect();
+					}
+				}
+			}
+
 			$databaseConnection = $this->getDatabase();
 			if (method_exists($databaseConnection, '__sleep')) {
 				$databaseConnection->__sleep();
