@@ -1,3 +1,11 @@
+Version: 0.0.16
+Subject: [TASK] TYPO3 8.7 LTS support for PageRecursiveRevertibleMigrationInterface
+Date:    2018-01-10 14:20:59 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=8256e955105cc598fb5ba58d5748f59947845c73
+
+Change-Id: Ia998c622fd4185f45a19d2ec8d71e583630c6b90
+Related: #TP-4549
+
 Version: 0.0.15
 Subject: [TASK] Proper TYPO3 8.7 LTS support for databasediff CLI action
 Date:    2018-01-02 21:29:47 +0100
