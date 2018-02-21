@@ -1,3 +1,11 @@
+Version: 0.0.17
+Subject: [TASK] Implement sync page translations transformation
+Date:    2018-02-20 09:24:52 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=b66c6202cddf3f02c7948315a95199bd25b138ff
+
+Change-Id: I986777eb2dc0eeedb497f834bf0d39ff792cdcb4
+related: #TP-4612
+
 Version: 0.0.16
 Subject: [TASK] TYPO3 8.7 LTS support for PageRecursiveRevertibleMigrationInterface
 Date:    2018-01-10 14:20:59 +0100
