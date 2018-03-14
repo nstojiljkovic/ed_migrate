@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallangExt>
+	<data type="array">
+		<languageKey index="{targetLanguage}" type="array"><f:for each="{labels}" as="label" key="index">
+            <label index="{index}"><f:if condition="{label.target}">{label.target}</f:if></label></f:for>
+		</languageKey>
+	</data>
+	<orig_hash type="array">
+		<languageKey index="{targetLanguage}" type="array"><f:for each="{labels}" as="label" key="index">
+            <f:if condition="{label.sourceMd5}"><label index="{index}">{label.sourceMd5}</label></f:if></f:for>
+		</languageKey>
+	</orig_hash>
+	<orig_text type="array">
+		<languageKey index="{sourceLanguage}" type="array"><f:for each="{labels}" as="label" key="index">
+            <f:if condition="{label.source}"><label index="{index}">{label.source}</label></f:if></f:for>
+		</languageKey>
+	</orig_text>
+</T3locallangExt>

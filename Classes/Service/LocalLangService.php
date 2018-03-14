@@ -39,6 +39,11 @@ class LocalLangService implements SingletonInterface {
 	protected static $singletonInstance;
 
 	/**
+	 * @var string
+	 */
+	protected $defaultLanguageKey = 'en';
+
+	/**
 	 * @return LocalLangService|object
 	 */
 	public static function getInstance() {
@@ -50,12 +55,27 @@ class LocalLangService implements SingletonInterface {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getDefaultLanguageKey() {
+		return $this->defaultLanguageKey;
+	}
+
+	/**
+	 * @param string $defaultLanguageKey
+	 */
+	public function setDefaultLanguageKey($defaultLanguageKey) {
+		$this->defaultLanguageKey = $defaultLanguageKey;
+	}
+
+	/**
 	 * @param $source
 	 * @param $destination
 	 * @param bool $autoDeleteProcessedFilesAndFolders
+	 * @param bool $autoConvertFileType
 	 * @return array
 	 */
-	public function migrateLocallangTranslationFile($source, $destination, $autoDeleteProcessedFilesAndFolders = TRUE) {
+	public function migrateLocallangTranslationFile($source, $destination, $autoDeleteProcessedFilesAndFolders = TRUE, $autoConvertFileType = TRUE) {
 
 		/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
 		$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
@@ -72,6 +92,8 @@ class LocalLangService implements SingletonInterface {
 			$sourceFilePath = dirname($source);
 			$sourceFileName = $lang . '.' . basename($source);
 			$destinationFilePath = dirname($destination);
+			$destinationFilePathSegments = explode( DIRECTORY_SEPARATOR, $destinationFilePath);
+			$extension = isset($destinationFilePathSegments[0]) ? $destinationFilePathSegments[0] : NULL;
 			$destinationFileName = $lang . '.' . basename($destination);
 			if ($languageFolder->hasFolder($sourceFilePath)) {
 				$sourceFolder = $languageFolder->getSubfolder($sourceFilePath);
@@ -88,6 +110,27 @@ class LocalLangService implements SingletonInterface {
 							$destinationFolder = $languageFolder->createFolder($destinationFilePath);
 						}
 						$destinationTranslationFile = $sourceTranslationFile->copyTo($destinationFolder, $destinationFileName, DuplicationBehavior::REPLACE);
+
+						if ($autoConvertFileType) {
+							$sourceTranslationFileExtension = $sourceTranslationFile->getExtension();
+							$destinationTranslationFileExtension = $destinationTranslationFile->getExtension();
+
+							foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ed_migrate']['LocalLangServiceFileConverter'] as $fileConverter) {
+								$fileConverterObject = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager')->get($fileConverter);
+								if ($fileConverterObject->isConversionSupported($sourceTranslationFileExtension, $destinationTranslationFileExtension)) {
+									$options = array(
+										'sourceFilePath' => $source,
+										'sourceFileName' => basename($source),
+										'sourceLanguage' => $this->getDefaultLanguageKey(),
+										'langKey' => $lang,
+										'extension' => $extension
+									);
+									$fileConverterObject->setOptions($options);
+									$fileConverterObject->convert($sourceTranslationFile, $destinationTranslationFile);
+								}
+							}
+						}
+
 						if ($destinationTranslationFile) {
 							$processedFiles[$sourceTranslationFile->getIdentifier()] = $destinationTranslationFile->getIdentifier();
 							if ($autoDeleteProcessedFilesAndFolders) {
@@ -101,13 +144,29 @@ class LocalLangService implements SingletonInterface {
 					if ($languageFolder->hasFolder($sourceRootDirectoryName)) {
 						$sourceRootDirectory = $languageFolder->getSubfolder($sourceRootDirectoryName);
 						// deletes source directory if it and its subdirectories don't have any files
-						if ($sourceRootDirectory->getFileCount(array(), TRUE) === 0) {
-							$sourceRootDirectory->delete();
-						}
+						$this->deleteEmptySubFolders($sourceRootDirectory);
 					}
 				}
 			}
 		}
 		return $processedFiles;
+	}
+
+	/**
+	 * @param \TYPO3\CMS\Core\Resource\Folder $folder
+	 */
+	public function deleteEmptySubFolders(\TYPO3\CMS\Core\Resource\Folder $folder) {
+
+		$subFolders = $folder->getSubfolders();
+		foreach ($subFolders as $subFolder) {
+			if ($subFolder->getFileCount(array(), TRUE) === 0) {
+				$subFolder->delete();
+			} else {
+				$this->deleteEmptySubFolders($subFolder);
+			}
+		}
+		if ($folder->getFileCount(array(), TRUE) === 0) {
+			$folder->delete();
+		}
 	}
 }

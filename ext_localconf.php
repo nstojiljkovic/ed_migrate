@@ -16,3 +16,6 @@ if (@is_dir($composerPath) && @is_file($composerAutoloadPath)) {
 		require_once($composerAutoloadPath);
 	}
 }
+
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ed_migrate']['LocalLangServiceFileConverter'][] = 'EssentialDots\\EdMigrate\\Service\\Converter\\LocallangXml2XlifConverter';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ed_migrate']['LocalLangServiceFileConverter'][] = 'EssentialDots\\EdMigrate\\Service\\Converter\\Xlif2LocallangXmlConverter';

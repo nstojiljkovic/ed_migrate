@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file {f:if(condition:sourceLanguage, then:'source-language="{sourceLanguage}"', else: '')} {f:if(condition:targetLanguage, then:'target-language="{targetLanguage}"', else: '')} datatype="plaintext" original="messages" date="{f:format.date(format:'Y-m-d\TH:i:s\Z',date:'now')}" product-name="{extensionKey}">
+		<header/>
+		<body><f:for each="{labels}" as="label" key="index">
+			<trans-unit id="{index}"><f:if condition="{label.source}">
+			    <source>{label.source}</source></f:if><f:if condition="{label.target}">
+			    <target>{label.target}</target>
+            </f:if></trans-unit></f:for>
+		</body>
+	</file>
+</xliff>
