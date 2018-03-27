@@ -1,3 +1,11 @@
+Version: 0.0.18
+Subject: [TASK] Implement locallang xml to xlf migration
+Date:    2018-03-15 16:29:15 +0100
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=336b6d00944cc9da87ef533d5185e1b1f4edc8c8
+
+Change-Id: Iec1611039a03045ed07951a58872888ca7c3d1e2
+Related: #TP-4637
+
 Version: 0.0.17
 Subject: [TASK] Implement sync page translations transformation
 Date:    2018-02-20 09:24:52 +0100
