@@ -1,3 +1,11 @@
+Version: 0.0.19
+Subject: [TASK] Run children threads without PHP memory limit
+Date:    2018-04-20 20:12:44 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=a836991396751d6eb7506795414a1eb077179737
+
+Change-Id: Ibd4f21f76cc4a49950e5da624324f39a5e23fced
+Related: #TP-4637
+
 Version: 0.0.18
 Subject: [TASK] Implement locallang xml to xlf migration
 Date:    2018-03-15 16:29:15 +0100
