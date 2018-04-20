@@ -428,7 +428,7 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 		$commands = array();
 		$totalCommands = 0;
 		foreach ($plannedExecutions as $plannedExecution) {
-			$command = 'typo3/cli_dispatch.phpsh extbase edmigration:partialmigration ' .
+			$command = 'php -d memory_limit=-1 ' . PATH_site . 'typo3/cli_dispatch.phpsh extbase edmigration:partialmigration ' .
 				'--migration ' . escapeshellarg(get_class($migration)) .
 				' --action ' . $action .
 				' --pageIds ' . implode(',', $plannedExecution);
@@ -472,7 +472,6 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 
 					$i++;
 					$this->outputLine('Running command [' . $i . '/' . $totalCommands . ']: ' . $command);
-					$command = PATH_site . $command;
 					$returnVar = NULL;
 					passthru($command, $returnVar);
 					if ($returnVar !== 0) {
@@ -510,7 +509,6 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 			foreach ($commands as $command) {
 				$i++;
 				$this->outputLine('Running command [' . $i . '/' . $totalCommands . ']: ' . $command);
-				$command = PATH_site . $command;
 				$returnVar = NULL;
 				passthru($command, $returnVar);
 				if ($returnVar !== 0) {
