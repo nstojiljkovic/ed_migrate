@@ -234,15 +234,15 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 					/** @var Node $referenceElement */
 					$referenceElement = GeneralUtility::makeInstance('EssentialDots\\EdMigrate\\Domain\\Model\\Node', 'tt_content', array());
 					$referenceElement->setCtype('shortcut');
-					$referenceElement->setPid($node->getUid());
+					$referenceElement->setPid($node->_getTableName() === 'pages' ? $node->getUid() : $node->getPid());
 					$referenceElement->setRecords($childElement->getUid());
 					$referenceElement->setColpos($finalColPos);
 					$referenceElement->setSorting($finalSorting);
-					if ($this->referenceParentField && $childElement->$referenceParentFieldHas()) {
-						$childElement->$referenceParentFieldSetter($node->getUid());
-					}
+					$referenceElement->$referenceParentFieldSetter($node->getUid());
+					$referenceElement->$colPosSetter($finalColPos);
+					$referenceElement->$sortingSetter($finalSorting);
 					if ($this->referenceUpdateFieldsTransformation !== NULL) {
-						$this->referenceUpdateFieldsTransformation->run($childElement);
+						$this->referenceUpdateFieldsTransformation->run($referenceElement);
 					}
 					$persistenceSession->registerEntity('tt_content', $referenceElement->getUid(), $referenceElement);
 					echo '  \- reference[' . $childElement->getUid() . '][' . $this->columnField . '] => ' . $childElement->getColpos() .
