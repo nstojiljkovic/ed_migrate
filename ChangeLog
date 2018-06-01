@@ -1,3 +1,11 @@
+Version: 0.0.20
+Subject: [BUGFIX] Fix referenced records migration
+Date:    2018-05-31 18:33:08 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=c3c922bd4a477f8a6f713e38c401994c84c26c1a
+
+Change-Id: If536caee0ab49d95c4665d97b7be9ce121636f50
+Related: #TP-4700
+
 Version: 0.0.19
 Subject: [TASK] Run children threads without PHP memory limit
 Date:    2018-04-20 20:12:44 +0200
