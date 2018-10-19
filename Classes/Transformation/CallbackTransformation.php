@@ -1,9 +1,10 @@
 <?php
-namespace EssentialDots\EdMigrate\Migration;
+namespace EssentialDots\EdAaqi\Transformation;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2015 Essential Dots d.o.o. Belgrade
+ *  (c) 2017 Essential Dots d.o.o. Belgrade
  *  All rights reserved
  *
  *  This script is free software; you can redistribute it and/or modify
@@ -22,10 +23,40 @@ namespace EssentialDots\EdMigrate\Migration;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
+use EssentialDots\EdMigrate\Transformation\TransformationInterface;
+
 /**
- * Interface PageRecursiveRevertibleMigrationInterface
+ * Class CallbackTransformation
  *
- * @package EssentialDots\EdMigrate\Migration
+ * @package EssentialDots\EdAaqi\Transformation
  */
-interface PageRecursiveRevertibleMigrationInterface extends PageRecursiveMigrationInterface {
+class CallbackTransformation implements TransformationInterface {
+
+	/**
+	 * @var callable
+	 */
+	protected $callback;
+
+	/**
+	 * UpdateHospitalizationJsonFieldTransformation constructor.
+	 * @param callable $callback
+	 */
+	public function __construct(Callable $callback) {
+		$this->callback = $callback;
+	}
+
+	/**
+	 * @param AbstractEntity $node
+	 * @return bool
+	 */
+	public function run(AbstractEntity $node) {
+		try {
+			call_user_func($this->callback, $node);
+		} catch (\Exception $e) {
+			return FALSE;
+		}
+
+		return TRUE;
+	}
 }

@@ -26,12 +26,16 @@ namespace EssentialDots\EdMigrate\Command;
 use EssentialDots\EdMigrate\Brancher\RelationBrancher;
 use EssentialDots\EdMigrate\Database\SqlHandler;
 use EssentialDots\EdMigrate\Expression\SymfonyLanguageExpression;
+use EssentialDots\EdMigrate\Migration\ChunkableContentMigrationInterface;
+use EssentialDots\EdMigrate\Migration\ChunkableContentRevertibleMigrationInterface;
 use EssentialDots\EdMigrate\Migration\MigrationInterface;
 use EssentialDots\EdMigrate\Migration\PageRecursiveMigrationInterface;
 use EssentialDots\EdMigrate\Migration\PageRecursiveRevertibleMigrationInterface;
 use EssentialDots\EdMigrate\Migration\RevertibleMigrationInterface;
 use EssentialDots\EdMigrate\Service\MigrationService;
 use EssentialDots\EdMigrate\Transformation\LogTransformation;
+use ReflectionException;
+use ReflectionObject;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -208,7 +212,9 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 	 * @param int $numberOfParallelThreads
 	 * @cli
 	 * @return void
+	 * @throws \Doctrine\DBAL\DBALException
 	 * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
+	 * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
 	 */
 	public function migrateCommand($namespace, $target = '', $pagesPerRun = 5, $limitContentPerRun = 100, $numberOfParallelThreads = 8) {
 		$logEntries = $this->getLogEntries($namespace);
@@ -228,6 +234,8 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 					$this->outputLine($this->cliSuccessWrap('Migrating ' . $migrationConf[0] . '...', TRUE));
 					if ($migration instanceof PageRecursiveMigrationInterface) {
 						$this->recursiveMigrationRun($migration, 'up', $pagesPerRun, $limitContentPerRun, $numberOfParallelThreads);
+					} elseif ($migration instanceof ChunkableContentMigrationInterface) {
+						$this->recursiveMigrationRun($migration, 'up', $pagesPerRun, $limitContentPerRun, $numberOfParallelThreads, $migration->getTableName());
 					} else {
 						MigrationService::getInstance()->addTransformation(
 							new LogTransformation()
@@ -261,6 +269,7 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 	 * @param int $numberOfParallelThreads
 	 * @cli
 	 * @return void
+	 * @throws \Doctrine\DBAL\DBALException
 	 * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
 	 */
 	public function rollbackCommand($namespace, $pagesPerRun = 5, $limitContentPerRun = 100, $numberOfParallelThreads = 8) {
@@ -278,6 +287,8 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 						$this->outputLine($this->cliSuccessWrap('Rolling back ' . $migrationConf[0] . '...', TRUE));
 						if ($migration instanceof PageRecursiveRevertibleMigrationInterface) {
 							$this->recursiveMigrationRun($migration, 'down', $pagesPerRun, $limitContentPerRun, $numberOfParallelThreads);
+						} elseif ($migration instanceof ChunkableContentRevertibleMigrationInterface) {
+								$this->recursiveMigrationRun($migration, 'down', $pagesPerRun, $limitContentPerRun, $numberOfParallelThreads, $migration->getTableName());
 						} else {
 							MigrationService::getInstance()->addTransformation(
 								new LogTransformation()
@@ -307,12 +318,12 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 	 *
 	 * @param string $migration
 	 * @param string $action
-	 * @param string $pageIds
+	 * @param string $ids
 	 * @param int $recursive
 	 * @cli
 	 * @return void
 	 */
-	public function partialMigrationCommand($migration, $action = 'up', $pageIds = '1', $recursive = 0) {
+	public function partialMigrationCommand($migration, $action = 'up', $ids = '1', $recursive = 0) {
 		$start = microtime(TRUE);
 
 		/** @var MigrationInterface $migrationObj */
@@ -320,9 +331,9 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 		if ($migrationObj instanceof PageRecursiveMigrationInterface) {
 			$migrationService = MigrationService::getInstance();
 
-			foreach (array_reverse(GeneralUtility::intExplode(',', $pageIds)) as $pageId) {
-				$page = $this->nodeRepository->findBy('pages', 'uid = ' . $pageId, 1);
-				$migrationService->addRootNode($page);
+			foreach (array_reverse(GeneralUtility::intExplode(',', $ids)) as $pageId) {
+				$node = $this->nodeRepository->findBy('pages', 'uid = ' . $pageId, 1);
+				$migrationService->addRootNode($node);
 			}
 
 			if ($recursive) {
@@ -363,6 +374,41 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 			$timeElapsedSecs = microtime(TRUE) - $start;
 
 			$this->outputLine('Finished in ' . $timeElapsedSecs . 's');
+		} elseif ($migrationObj instanceof ChunkableContentMigrationInterface) {
+			$migrationService = MigrationService::getInstance();
+
+			foreach (array_reverse(GeneralUtility::intExplode(',', $ids)) as $id) {
+				$node = $this->nodeRepository->findBy($migrationObj->getTableName(), 'uid = ' . $id, 1);
+				$migrationService->addRootNode($node);
+			}
+
+			$migrationService->addTransformation(
+				new LogTransformation()
+			);
+
+			switch ($action) {
+				case 'up':
+					$migrationObj->up();
+					break;
+				case 'down':
+					if ($migrationObj instanceof RevertibleMigrationInterface) {
+						/** @var RevertibleMigrationInterface $migrationObj */
+						$migrationObj->down();
+					} else {
+						throw new \RuntimeException('Migration ' . $migration . ' is not an instance of RevertibleMigrationInterface and cannot be rolled back!', 4);
+					}
+					break;
+				default:
+					throw new \RuntimeException('Action ' . $action . ' not supported!', 5);
+			}
+
+			$migrationService->run();
+
+			$this->persistenceSession->persistChangedEntities();
+
+			$timeElapsedSecs = microtime(TRUE) - $start;
+
+			$this->outputLine('Finished in ' . $timeElapsedSecs . 's');
 		} else {
 			throw new \RuntimeException('Migration ' . $migration . ' is not an instance of PageRecursiveMigrationInterface!', 6);
 		}
@@ -374,64 +420,78 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 	 * @param int $pagesPerRun
 	 * @param int $limitContentPerRun
 	 * @param int $numberOfParallelThreads
+	 * @param string $table
+	 * @throws \Exception
 	 * @return void
 	 */
-	protected function recursiveMigrationRun($migration, $action = 'up', $pagesPerRun = 5, $limitContentPerRun = 100, $numberOfParallelThreads = 8) {
-		$rows = $this->getDatabase()->exec_SELECTgetRows(
-			'pages.uid, pages.pid, COUNT(tt_content.uid) as c',
-			'pages LEFT JOIN tt_content ON (pages.uid = tt_content.pid AND tt_content.l18n_parent = 0 ' . BackendUtility::deleteClause('tt_content') . ')',
-			'1=1' . BackendUtility::deleteClause('pages'),
-			'pages.uid, pages.pid'
-		);
-		$pages = array();
-		$cnts = array();
-		foreach ($rows as $row) {
-			if (!isset($pages[$row['pid']])) {
-				$pages[$row['pid']] = array();
-			}
-			$pages[$row['pid']][] = $row['uid'];
-			$cnts[$row['uid']] = $row['c'];
-		}
-		unset($rows);
-
-		// DFS iterative
-		$stack = array(0);
-		$visited = array();
-		$plannedExecutions = array();
-		$currentExecution = array();
-		$currentExecutionContentCount = 0;
-		while (count($stack)) {
-			$v = array_pop($stack);
-			if (!isset($visited[$v]) || !$visited[$v]) {
-				$visited[$v] = TRUE;
-				if ($v > 0) {
-					if (count($currentExecution) === (int) $pagesPerRun || $currentExecutionContentCount + (int) $cnts[$v] >= (int) $limitContentPerRun) {
-						$plannedExecutions[] = $currentExecution;
-						$currentExecution = array();
-						$currentExecutionContentCount = 0;
-					}
-					$currentExecutionContentCount += (int) $cnts[$v];
-					$currentExecution[] = $v;
+	protected function recursiveMigrationRun($migration, $action = 'up', $pagesPerRun = 5, $limitContentPerRun = 100, $numberOfParallelThreads = 8, $table = 'pages') {
+		if ($table === 'pages') {
+			$rows = $this->getDatabase()->exec_SELECTgetRows(
+				'pages.uid, pages.pid, COUNT(tt_content.uid) as c',
+				'pages LEFT JOIN tt_content ON (pages.uid = tt_content.pid AND tt_content.l18n_parent = 0 ' . BackendUtility::deleteClause('tt_content') . ')',
+				'1=1' . BackendUtility::deleteClause('pages'),
+				'pages.uid, pages.pid'
+			);
+			$pages = array();
+			$cnts = array();
+			foreach ($rows as $row) {
+				if (!isset($pages[$row['pid']])) {
+					$pages[$row['pid']] = array();
 				}
-				if (isset($pages[$v]) && is_array($pages[$v])) {
-					foreach ($pages[$v] as $vN) {
-						array_push($stack, $vN);
+				$pages[$row['pid']][] = $row['uid'];
+				$cnts[$row['uid']] = $row['c'];
+			}
+			unset($rows);
+
+			// DFS iterative
+			$stack = array(0);
+			$visited = array();
+			$plannedExecutions = array();
+			$currentExecution = array();
+			$currentExecutionContentCount = 0;
+			while (count($stack)) {
+				$v = array_pop($stack);
+				if (!isset($visited[$v]) || !$visited[$v]) {
+					$visited[$v] = TRUE;
+					if ($v > 0) {
+						if (count($currentExecution) === (int) $pagesPerRun || $currentExecutionContentCount + (int) $cnts[$v] >= (int) $limitContentPerRun) {
+							$plannedExecutions[] = $currentExecution;
+							$currentExecution = array();
+							$currentExecutionContentCount = 0;
+						}
+						$currentExecutionContentCount += (int) $cnts[$v];
+						$currentExecution[] = $v;
+					}
+					if (isset($pages[$v]) && is_array($pages[$v])) {
+						foreach ($pages[$v] as $vN) {
+							array_push($stack, $vN);
+						}
 					}
 				}
 			}
+
+			if (count($currentExecution)) {
+				$plannedExecutions[] = $currentExecution;
+			}
+
+			$commands = array();
+			$totalCommands = 0;
+		} else {
+			$rows = $this->getDatabase()->exec_SELECTgetRows(
+				'uid',
+				$table,
+				'1=1' . BackendUtility::deleteClause($table)
+			);
+			$plannedExecutions = array_chunk(array_map(function ($r) {
+				return $r['uid'];
+			}, $rows), $limitContentPerRun);
 		}
 
-		if (count($currentExecution)) {
-			$plannedExecutions[] = $currentExecution;
-		}
-
-		$commands = array();
-		$totalCommands = 0;
 		foreach ($plannedExecutions as $plannedExecution) {
-			$command = 'php -d memory_limit=-1 ' . PATH_site . 'typo3/cli_dispatch.phpsh extbase edmigration:partialmigration ' .
-				'--migration ' . escapeshellarg(get_class($migration)) .
+			$command = 'php -d memory_limit=-1 ' . PATH_site . 'typo3/cli_dispatch.phpsh extbase edmigration:partialmigration' .
+				' --migration ' . escapeshellarg(get_class($migration)) .
 				' --action ' . $action .
-				' --pageIds ' . implode(',', $plannedExecution);
+				' --ids ' . implode(',', $plannedExecution);
 			$commands[] = $command;
 			$totalCommands += 1;
 		}
@@ -485,24 +545,39 @@ class EdMigrationCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Com
 				pcntl_waitpid($pid, $status);
 			}
 
-			if (version_compare(TYPO3_version, 8.0, '>=')) {
-				/** @var \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool */
-				$connectionPool = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class);
-				foreach ($connectionPool->getConnectionNames() as $connectionName) {
-					$connection = $connectionPool->getConnectionByName($connectionName);
-					if (!$connection->isConnected() || !$connection->ping()) {
-						$connection->close();
-						$connection->connect();
+			try {
+				if (version_compare(TYPO3_version, 8.0, '>=')) {
+					/** @var \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool */
+					$connectionPool = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class);
+					foreach ($connectionPool->getConnectionNames() as $connectionName) {
+						$connection = $connectionPool->getConnectionByName($connectionName);
+						if (!$connection->isConnected() || !$connection->ping()) {
+							$connection->close();
+							try {
+								$refObject = new ReflectionObject($connection);
+								$refProperty = $refObject->getProperty('customConnectSetupExecuted');
+								$refProperty->setAccessible(TRUE);
+								$refProperty->setValue($connection, FALSE);
+								$refProperty->setAccessible(FALSE);
+							} catch (ReflectionException $exception) {
+								// ignore exception
+								// $this->outputLine($exception->getMessage());
+							}
+							$connection->connect();
+						}
 					}
 				}
-			}
 
-			$databaseConnection = $this->getDatabase();
-			if (method_exists($databaseConnection, '__sleep')) {
-				$databaseConnection->__sleep();
-				$this->getDatabase()->connectDB();
-			} elseif (!$this->getDatabase()->isConnected()) {
-				$this->getDatabase()->connectDB();
+				$databaseConnection = $this->getDatabase();
+				if (method_exists($databaseConnection, '__sleep')) {
+					$databaseConnection->__sleep();
+					$this->getDatabase()->connectDB();
+				} elseif (!$this->getDatabase()->isConnected()) {
+					$this->getDatabase()->connectDB();
+				}
+			} catch (\Exception $e) {
+				echo $e->getTraceAsString();
+				throw $e;
 			}
 		} else {
 			$i = 0;

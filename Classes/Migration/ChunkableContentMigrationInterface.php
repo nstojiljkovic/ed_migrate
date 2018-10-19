@@ -23,9 +23,13 @@ namespace EssentialDots\EdMigrate\Migration;
  ***************************************************************/
 
 /**
- * Interface PageRecursiveRevertibleMigrationInterface
+ * Interface ChunkableContentMigrationInterface
  *
  * @package EssentialDots\EdMigrate\Migration
  */
-interface PageRecursiveRevertibleMigrationInterface extends PageRecursiveMigrationInterface {
+interface ChunkableContentMigrationInterface extends MigrationInterface {
+	/**
+	 * @return string
+	 */
+	public function getTableName();
 }
