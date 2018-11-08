@@ -1,3 +1,11 @@
+Version: 0.0.21
+Subject: [TASK] Add support for running mass migrations of arbitrary TYPO3 data using small chunks
+Date:    2018-10-22 17:50:49 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=69b95483b6f1e99a6408aea38b8782117239417a
+
+Change-Id: I213fb9a55310f6ecdcbb8dd6198f7a9146243eb0
+Related: #TP-4430
+
 Version: 0.0.20
 Subject: [BUGFIX] Fix referenced records migration
 Date:    2018-05-31 18:33:08 +0200
