@@ -25,7 +25,6 @@ namespace EssentialDots\EdMigrate\Service;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Domain\Model\Node;
 use EssentialDots\EdMigrate\Transformation\TranslateElementWithAllLanguagesTransformation;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -142,7 +141,7 @@ class TranslationService implements SingletonInterface {
 						$hiddenField = $GLOBALS['TCA'][$tableName]['ctrl']['enablecolumns']['disabled'];
 						$nodeTranslationEl = $nodeRepository->findBy(
 							$tableName,
-							$transOrigPointerField . ' = ' . $node->getUid() . ' AND ' . $lanuageField . ' = ' . $languageUid . BackendUtility::deleteClause($tableName),
+							$transOrigPointerField . ' = ' . $node->getUid() . ' AND ' . $lanuageField . ' = ' . $languageUid . DatabaseService::deleteClause($tableName),
 							1
 						);
 						if (!$nodeTranslationEl) {
@@ -198,7 +197,7 @@ class TranslationService implements SingletonInterface {
 							$relationFields = $transformation->getRelationFields();
 							$childTableName = $transformation->getChildTableName();
 							$parentTableName = $transformation->getParentTableName();
-							$whereClause = $transformation->getWhereClause();
+							$whereClause = $transformation->getWhereExpression();
 
 							if (
 								$node->_getTableName() === $parentTableName &&
@@ -231,7 +230,7 @@ class TranslationService implements SingletonInterface {
 							$childLanuageField = $GLOBALS['TCA'][$childTableName]['ctrl']['languageField'];
 							$childLanuageFieldGetter = 'get' . GeneralUtility::underscoredToUpperCamelCase($childLanuageField);
 							foreach ($relationUids as $relationUid) {
-								$relatedNode = $nodeRepository->findBy($childTableName, 'uid = ' . $relationUid . BackendUtility::deleteClause($childTableName), 1);
+								$relatedNode = $nodeRepository->findBy($childTableName, 'uid = ' . $relationUid . DatabaseService::deleteClause($childTableName), 1);
 								if (!$relatedNode) {
 									continue;
 								}
@@ -256,7 +255,7 @@ class TranslationService implements SingletonInterface {
 						}
 					}
 				} else {
-					$translatedNodes = $nodeRepository->findBy($tableName, $GLOBALS['TCA'][$tableName]['ctrl']['transOrigPointerField'] . ' = ' . (int) $node->getUid() . BackendUtility::deleteClause($tableName));
+					$translatedNodes = $nodeRepository->findBy($tableName, $GLOBALS['TCA'][$tableName]['ctrl']['transOrigPointerField'] . ' = ' . (int) $node->getUid() . DatabaseService::deleteClause($tableName));
 					foreach ($translatedNodes as $translatedNode) {
 						if ($translatedNode->$languageHas()) {
 							$result[(string) $translatedNode->$languageGetter()] = $translatedNode->getUid();
@@ -279,10 +278,10 @@ class TranslationService implements SingletonInterface {
 		if (empty($this->languagesPerPidCache[$cacheKey])) {
 			$this->languagesPerPidCache[$cacheKey] = array();
 
-			$pR = $this->getDatabase()->exec_SELECTgetSingleRow(
+			$pR = DatabaseService::getDatabase()->exec_SELECTgetSingleRow(
 				'GROUP_CONCAT(sys_language_uid) as languages',
 				'pages_language_overlay',
-				'pid = ' . (int) $pid . BackendUtility::deleteClause('pages_language_overlay')
+				'pid = ' . (int) $pid . DatabaseService::deleteClause('pages_language_overlay')
 			);
 			if ($pR) {
 				$this->languagesPerPidCache[$cacheKey] = GeneralUtility::intExplode(',', $pR['languages'], TRUE);
@@ -290,19 +289,5 @@ class TranslationService implements SingletonInterface {
 		}
 
 		return $this->languagesPerPidCache[$cacheKey];
-	}
-
-	/**
-	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected function getDatabase() {
-		$result = $GLOBALS['TYPO3_DB'];
-
-		if (ExtensionManagementUtility::isLoaded('ed_scale')) {
-			/** @var \EssentialDots\EdScale\Database\DatabaseConnection $result */
-			$result = $result->getConnectionByName('default');
-		}
-
-		return $result;
 	}
 }

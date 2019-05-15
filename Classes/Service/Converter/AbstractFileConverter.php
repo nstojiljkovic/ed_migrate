@@ -72,14 +72,14 @@ class AbstractFileConverter implements SingletonInterface {
 	/**
 	 * @return array
 	 */
-	public function getOptions() {
+	public function getConverterOptions() {
 		return $this->options;
 	}
 
 	/**
 	 * @param array $options
 	 */
-	public function setOptions($options) {
+	public function setConverterOptions($options) {
 		$this->options = $options;
 	}
 
@@ -88,7 +88,7 @@ class AbstractFileConverter implements SingletonInterface {
 	 * @param null $default
 	 * @return mixed|null
 	 */
-	public function getOption($key, $default = NULL) {
+	public function getConverterOption($key, $default = NULL) {
 		return isset($this->options[$key]) ? $this->options[$key] : $default;
 	}
 
@@ -126,14 +126,14 @@ class AbstractFileConverter implements SingletonInterface {
 	 */
 	protected function convertLocallangFile(File $xmlFile) {
 
-		$langKey = $this->getOption('langKey', '');
+		$langKey = $this->getConverterOption('langKey', '');
 		if (strlen($langKey) === 0) {
 			throw new \RuntimeException('langKey is not set', 1314187885);
 		}
 
 		$localLangArray = $this->getLocalLangArray($xmlFile);
-		$extensionKey = $this->getOption('extension', '');
-		$sourceLanguageKey = $this->getOption('sourceLanguage');
+		$extensionKey = $this->getConverterOption('extension', '');
+		$sourceLanguageKey = $this->getConverterOption('sourceLanguage');
 
 		$labels = array();
 		foreach ($localLangArray[$langKey] as $key => $data) {
@@ -169,28 +169,28 @@ class AbstractFileConverter implements SingletonInterface {
 		if (!isset($ll['data'])) {
 			throw new \RuntimeException('data section not found in "' . $xmlFile->getCombinedIdentifier() . '"', 1314187884);
 		}
-		$langKey = $this->getOption('langKey', '');
+		$langKey = $this->getConverterOption('langKey', '');
 		if (strlen($langKey) === 0) {
 			throw new \RuntimeException('langKey is not set', 1314187885);
 		}
 		$includedLanguages = array_keys($ll['data']);
-		$extensionKey = $this->getOption('extension', '');
+		$extensionKey = $this->getConverterOption('extension', '');
 
 		/** @var \TYPO3\CMS\Core\Localization\Parser\LocallangXmlParser $parser */
 		$parser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($this->parsetType);
 		$localLangArray = array();
-		$sourceFilePath = $this->getOption('sourceFilePath', '');
-		$sourceFileName = $this->getOption('sourceFileName', '');
+		$sourceFilePath = $this->getConverterOption('sourceFilePath', '');
+		$sourceFileName = $this->getConverterOption('sourceFileName', '');
 		$typo3SitePath = GeneralUtility::getIndpEnv('TYPO3_SITE_PATH');
 		$locallangPathAndFilename = $typo3SitePath . 'typo3conf/ext/' . $sourceFilePath;
 		if (!file_exists(GeneralUtility::getFileAbsFileName($locallangPathAndFilename))) {
 			$locallangPathAndFilename = $typo3SitePath . 'typo3conf/ext/' . $extensionKey . '/Resources/Private/Language/' . $sourceFileName;
 		}
 		if (file_exists(GeneralUtility::getFileAbsFileName($locallangPathAndFilename))) {
-			$localLangArray = array_merge($localLangArray, $parser->getParsedData($locallangPathAndFilename, 'default', $GLOBALS['LANG']->charSet));
+			$localLangArray = array_merge($localLangArray, $parser->getParsedData($locallangPathAndFilename, 'default'));
 		}
 		foreach ($includedLanguages as $langKey) {
-			$localLangArray = array_merge($localLangArray, $parser->getParsedData($xmlFile->getForLocalProcessing(FALSE), $langKey, $GLOBALS['LANG']->charSet));
+			$localLangArray = array_merge($localLangArray, $parser->getParsedData($xmlFile->getForLocalProcessing(FALSE), $langKey));
 		}
 
 		return $localLangArray;

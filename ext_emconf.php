@@ -10,7 +10,7 @@
  * "version" and "dependencies" must not be touched!
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = array (
+$EM_CONF[$_EXTKEY] = array(
 	'title' => 'Essential Dots Migrate Library',
 	'description' => '',
 	'category' => 'plugin',
@@ -21,20 +21,19 @@ $EM_CONF[$_EXTKEY] = array (
 	'uploadfolder' => '0',
 	'createDirs' => '',
 	'clearCacheOnLoad' => 0,
-	'version' => '0.0.22-dev',
-	'constraints' => 
-	array (
-	  'depends' => 
-	  array (
-	    'typo3' => '6.2.0-0.0.0',
-	  ),
-	  'conflicts' => 
-	  array (
-	  ),
-	  'suggests' => 
-	  array (
-	  ),
-	),
+	'version' => '1.0.0-dev',
+	'constraints' =>
+		array(
+			'depends' =>
+				array(
+					'typo3' => '9.5.0-0.0.0',
+					'typo3db_legacy' => '1.0.0-1.0.99',
+				),
+			'conflicts' =>
+				array(),
+			'suggests' =>
+				array(),
+		),
 );
 
 ?>

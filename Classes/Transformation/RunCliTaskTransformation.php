@@ -2,6 +2,7 @@
 namespace EssentialDots\EdMigrate\Transformation;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Expression\ExpressionInterface;
+use TYPO3\CMS\Core\Core\Environment;
 
 /***************************************************************
  *  Copyright notice
@@ -45,17 +46,17 @@ class RunCliTaskTransformation implements TransformationInterface {
 	/**
 	 * @var ExpressionInterface
 	 */
-	protected $whereClause;
+	protected $whereExpression;
 
 	/**
 	 * @param ExpressionInterface $command
 	 * @param string $tableName
-	 * @param ExpressionInterface $whereClause
+	 * @param ExpressionInterface $whereExpression
 	 */
-	public function __construct($command, $tableName, ExpressionInterface $whereClause = NULL) {
+	public function __construct($command, $tableName, ExpressionInterface $whereExpression = NULL) {
 		$this->command = $command;
 		$this->tableName = $tableName;
-		$this->whereClause = $whereClause;
+		$this->whereExpression = $whereExpression;
 	}
 
 	/**
@@ -64,10 +65,10 @@ class RunCliTaskTransformation implements TransformationInterface {
 	 */
 	public function run(AbstractEntity $node) {
 		if ($node->_getTableName() === $this->tableName) {
-			if ($this->whereClause === NULL || $this->whereClause->evaluate($node)) {
+			if ($this->whereExpression === NULL || $this->whereExpression->evaluate($node)) {
 				$command = 'typo3/cli_dispatch.phpsh ' . $this->command->evaluate($node);
 				echo 'Running command: ' . PHP_EOL . $command . PHP_EOL;
-				$command = PATH_site . $command;
+				$command = Environment::getPublicPath() . '/' . $command;
 				$returnVar = NULL;
 				passthru($command, $returnVar);
 				if ($returnVar !== 0) {

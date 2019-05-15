@@ -1,10 +1,13 @@
 <?php
 namespace EssentialDots\EdMigrate\Domain\Repository;
+use EssentialDots\EdMigrate\Service\DatabaseService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ClassNamingUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
+use TYPO3\CMS\Extbase\Annotation as Extbase;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -35,8 +38,8 @@ use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 abstract class AbstractEntityRepository implements SingletonInterface {
 
 	/**
+	 * @Extbase\Inject
 	 * @var \EssentialDots\EdMigrate\Persistence\PersistenceSession
-	 * @inject
 	 */
 	protected $persistenceSession;
 
@@ -47,7 +50,7 @@ abstract class AbstractEntityRepository implements SingletonInterface {
 	 * @return AbstractEntity[]|AbstractEntity
 	 */
 	public function findBy($tableName, $whereClause = '', $limit = -1) {
-		$res = $this->getDatabase()->exec_SELECTquery(
+		$res = DatabaseService::getDatabase()->exec_SELECTquery(
 			'*',
 			$tableName,
 			$whereClause,
@@ -58,7 +61,7 @@ abstract class AbstractEntityRepository implements SingletonInterface {
 
 		$result = array();
 
-		while (($row = $this->getDatabase()->sql_fetch_assoc($res))) {
+		while (($row = DatabaseService::getDatabase()->sql_fetch_assoc($res))) {
 			if (($entity = $this->persistenceSession->getRegisteredEntity($tableName, $row['uid'])) === FALSE) {
 				$entityClassName = ClassNamingUtility::translateRepositoryNameToModelName(get_class($this));
 				/** @var AbstractEntity $entity */
@@ -71,20 +74,6 @@ abstract class AbstractEntityRepository implements SingletonInterface {
 
 		if ($limit === 1) {
 			$result = reset($result);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected function getDatabase() {
-		$result = $GLOBALS['TYPO3_DB'];
-
-		if (ExtensionManagementUtility::isLoaded('ed_scale')) {
-			/** @var \EssentialDots\EdScale\Database\DatabaseConnection $result */
-			$result = $result->getConnectionByName('default');
 		}
 
 		return $result;

@@ -31,7 +31,7 @@ namespace EssentialDots\EdMigrate\Core\Database;
 class DatabaseConnection {
 
 	/**
-	 * @var \TYPO3\CMS\Core\Database\DatabaseConnection
+	 * @var \TYPO3\CMS\Typo3DbLegacy\Database\DatabaseConnection
 	 */
 	protected $defaultDatabaseConnection = NULL;
 
@@ -41,10 +41,10 @@ class DatabaseConnection {
 	protected $persistenceSession = NULL;
 
 	/**
-	 * @param \TYPO3\CMS\Core\Database\DatabaseConnection $defaultDatabaseConnection
+	 * @param \TYPO3\CMS\Typo3DbLegacy\Database\DatabaseConnection $defaultDatabaseConnection
 	 * @param \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession
 	 */
-	public function __construct(\TYPO3\CMS\Core\Database\DatabaseConnection $defaultDatabaseConnection, \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession) {
+	public function __construct(\TYPO3\CMS\Typo3DbLegacy\Database\DatabaseConnection $defaultDatabaseConnection, \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession) {
 		$this->defaultDatabaseConnection = $defaultDatabaseConnection;
 		$this->persistenceSession = $persistenceSession;
 	}

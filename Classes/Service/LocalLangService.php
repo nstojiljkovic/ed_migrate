@@ -117,16 +117,18 @@ class LocalLangService implements SingletonInterface {
 
 							foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ed_migrate']['LocalLangServiceFileConverter'] as $fileConverter) {
 								$fileConverterObject = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager')->get($fileConverter);
-								if ($fileConverterObject->isConversionSupported($sourceTranslationFileExtension, $destinationTranslationFileExtension)) {
-									$options = array(
-										'sourceFilePath' => $source,
-										'sourceFileName' => basename($source),
-										'sourceLanguage' => $this->getDefaultLanguageKey(),
-										'langKey' => $lang,
-										'extension' => $extension
-									);
-									$fileConverterObject->setOptions($options);
-									$fileConverterObject->convert($sourceTranslationFile, $destinationTranslationFile);
+								if ($fileConverterObject instanceof \EssentialDots\EdMigrate\Service\Converter\AbstractFileConverter) {
+									if ($fileConverterObject->isConversionSupported($sourceTranslationFileExtension, $destinationTranslationFileExtension)) {
+										$options = array(
+											'sourceFilePath' => $source,
+											'sourceFileName' => basename($source),
+											'sourceLanguage' => $this->getDefaultLanguageKey(),
+											'langKey' => $lang,
+											'extension' => $extension
+										);
+										$fileConverterObject->setConverterOptions($options);
+										$fileConverterObject->convert($sourceTranslationFile, $destinationTranslationFile);
+									}
 								}
 							}
 						}

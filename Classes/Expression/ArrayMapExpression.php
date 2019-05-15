@@ -1,6 +1,7 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
+use EssentialDots\EdMigrate\Service\DatabaseService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -77,7 +78,7 @@ class ArrayMapExpression implements ExpressionInterface {
 		foreach ($value as &$v) {
 			$vNode = $node;
 			if ($this->table) {
-				$vNode = $nodeRepository->findBy($this->table, 'uid = ' . $this->getDatabase()->fullQuoteStr($v, $this->table), 1);
+				$vNode = $nodeRepository->findBy($this->table, 'uid = ' . DatabaseService::getDatabase()->fullQuoteStr($v, $this->table), 1);
 			}
 			if ($vNode) {
 				$v = $this->transform instanceof ExpressionInterface ? $this->transform->evaluate($vNode) : (string) $this->transform;
@@ -87,12 +88,5 @@ class ArrayMapExpression implements ExpressionInterface {
 		}
 
 		return $returnArray ? $value : implode(',', $value);
-	}
-
-	/**
-	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected function getDatabase() {
-		return $GLOBALS['TYPO3_DB'];
 	}
 }

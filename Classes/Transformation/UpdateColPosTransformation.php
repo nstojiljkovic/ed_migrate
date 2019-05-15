@@ -3,7 +3,7 @@ namespace EssentialDots\EdMigrate\Transformation;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Domain\Model\Node;
 use EssentialDots\EdMigrate\Expression\ExpressionInterface;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+use EssentialDots\EdMigrate\Service\DatabaseService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -54,19 +54,19 @@ class UpdateColPosTransformation implements TransformationInterface {
 	/**
 	 * @var ExpressionInterface
 	 */
-	protected $whereClause;
+	protected $whereExpression;
 
 	/**
 	 * @param $colPosMap
 	 * @param $notUsedColPos
 	 * @param string $tableName
-	 * @param ExpressionInterface|NULL $whereClause
+	 * @param ExpressionInterface|NULL $whereExpression
 	 */
-	public function __construct($colPosMap, $notUsedColPos, $tableName = '*', ExpressionInterface $whereClause = NULL) {
+	public function __construct($colPosMap, $notUsedColPos, $tableName = '*', ExpressionInterface $whereExpression = NULL) {
 		$this->colPosMap = $colPosMap;
 		$this->notUsedColPos = $notUsedColPos;
 		$this->tableName = $tableName;
-		$this->whereClause = $whereClause;
+		$this->whereExpression = $whereExpression;
 	}
 
 	/**
@@ -85,12 +85,12 @@ class UpdateColPosTransformation implements TransformationInterface {
 			/** @var \EssentialDots\EdMigrate\Persistence\PersistenceSession $persistenceSession */
 			$persistenceSession = $objectManager->get('EssentialDots\\EdMigrate\\Persistence\\PersistenceSession');
 
-			$ttContentEnableFields = BackendUtility::deleteClause('tt_content');
+			$ttContentEnableFields = DatabaseService::deleteClause('tt_content');
 
 			if (
 				$node->_getTableName() === 'pages' &&
 				($this->tableName === '*' || $this->tableName === 'pages') &&
-				($this->whereClause === NULL || $this->whereClause->evaluate($node))
+				($this->whereExpression === NULL || $this->whereExpression->evaluate($node))
 			) {
 				$colPosMap = array();
 				$allUids = array(0);
@@ -134,7 +134,7 @@ class UpdateColPosTransformation implements TransformationInterface {
 				$node->_getTableName() === 'tt_content' &&
 				(int) $node->getL18nParent() === 0 &&
 				($this->tableName === '*' || $this->tableName === 'tt_content') &&
-				($this->whereClause === NULL || $this->whereClause->evaluate($node))
+				($this->whereExpression === NULL || $this->whereExpression->evaluate($node))
 			) {
 				$contentElements = $nodeRepository->findBy('tt_content', 'l18n_parent = ' . (int) $node->getUid() . $ttContentEnableFields);
 				foreach ($contentElements as $contentElement) {

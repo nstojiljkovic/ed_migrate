@@ -1,6 +1,9 @@
 <?php
 namespace ###NAMESPACE###;
 
+use EssentialDots\EdMigrate\Service\DatabaseService;
+use Symfony\Component\Console\Output\OutputInterface;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -31,20 +34,18 @@ namespace ###NAMESPACE###;
 class ###CLASS-NAME### implements \EssentialDots\EdMigrate\Migration\MigrationInterface {
 
 	/**
-	 * @var \TYPO3\CMS\Extbase\Mvc\Cli\ConsoleOutput
+	 * @var OutputInterface
 	 */
 	protected $output;
 
 	/**
-	 * @param \TYPO3\CMS\Extbase\Mvc\Cli\ConsoleOutput $output
+	 * @param OutputInterface $output
 	 */
 	public function __construct($output = NULL) {
-		if ($output instanceof \TYPO3\CMS\Extbase\Mvc\Cli\ConsoleOutput) {
+		if ($output instanceof OutputInterface) {
 			$this->output = $output;
 		} else {
-			/** @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager */
-			$objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
-			$this->output = $objectManager->get(\TYPO3\CMS\Extbase\Mvc\Cli\ConsoleOutput::class);
+			$this->output = new \Symfony\Component\Console\Output\ConsoleOutput();
 		}
 	}
 
@@ -60,12 +61,5 @@ class ###CLASS-NAME### implements \EssentialDots\EdMigrate\Migration\MigrationIn
 	 */
 	public function down() {
 		// @todo: implement rollback
-	}
-
-	/**
-	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected function getDatabase() {
-		return $GLOBALS['TYPO3_DB'];
 	}
 }

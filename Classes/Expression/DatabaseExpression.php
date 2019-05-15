@@ -1,6 +1,7 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
+use EssentialDots\EdMigrate\Service\DatabaseService;
 
 /***************************************************************
  *  Copyright notice
@@ -66,19 +67,12 @@ class DatabaseExpression implements ExpressionInterface {
 		$from = $this->from instanceof ExpressionInterface ? $this->from->evaluate($node) : (string) $this->from;
 		$where = $this->where instanceof ExpressionInterface ? $this->where->evaluate($node) : (string) $this->where;
 
-		$row = $this->getDatabase()->exec_SELECTgetSingleRow(
+		$row = DatabaseService::getDatabase()->exec_SELECTgetSingleRow(
 			$select,
 			$from,
 			$where
 		);
 
 		return is_array($row) ? $row[$select] : NULL;
-	}
-
-	/**
-	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected function getDatabase() {
-		return $GLOBALS['TYPO3_DB'];
 	}
 }

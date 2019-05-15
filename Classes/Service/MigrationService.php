@@ -27,6 +27,7 @@ use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Transformation\TransformationInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Annotation as Extbase;
 
 /**
  * Class MigrationService
@@ -36,8 +37,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class MigrationService implements SingletonInterface {
 
 	/**
+	 * @Extbase\Inject
 	 * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
-	 * @inject
 	 */
 	protected $objectManager;
 

@@ -40,6 +40,7 @@ return array(
 			'label' => 'LLL:EXT:ed_migrate/Resources/Private/Language/locallang_db.xlf:tx_edmigrate_domain_model_log.start_time',
 			'config' => array(
 				'type' => 'input',
+				'renderType' => 'inputDateTime',
 				'size' => 10,
 				'eval' => 'datetime',
 				'checkbox' => 1,

@@ -111,7 +111,9 @@ class PersistenceSession implements SingletonInterface {
 
 		$oldReferenceIndexClassName = $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Core\\Database\\ReferenceIndex']['className'];
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Core\\Database\\ReferenceIndex']['className'] = 'EssentialDots\\EdMigrate\\Core\\Database\\DummyReferenceIndex';
+		// @extensionScannerIgnoreLine
 		$oldDb = $GLOBALS['TYPO3_DB'];
+		// @extensionScannerIgnoreLine
 		$GLOBALS['TYPO3_DB'] = new \EssentialDots\EdMigrate\Core\Database\DatabaseConnection($oldDb, $this);
 
 		/** @var \TYPO3\CMS\Core\DataHandling\DataHandler $tce */
@@ -211,6 +213,7 @@ class PersistenceSession implements SingletonInterface {
 		} else {
 			unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Core\\Database\\ReferenceIndex']['className']);
 		}
+		// @extensionScannerIgnoreLine
 		$GLOBALS['TYPO3_DB'] = $oldDb;
 	}
 

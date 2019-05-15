@@ -58,11 +58,11 @@ class Xlif2LocallangXmlConverter extends \EssentialDots\EdMigrate\Service\Conver
 	 * @return array LOCAL_LANG array from ll-XML file (with all possible sub-files for languages included)
 	 */
 	protected function getLocalLangArray(File $xmlFile) {
-		$langKey = $this->getOption('langKey', '');
+		$langKey = $this->getConverterOption('langKey', '');
 		/** @var \TYPO3\CMS\Core\Localization\Parser\XliffParser $parser */
 		$parser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($this->parsetType);
 		$localLangArray = array();
-		$localLangArray = array_merge($localLangArray, $parser->getParsedData($xmlFile->getForLocalProcessing(FALSE), $langKey, $GLOBALS['LANG']->charSet));
+		$localLangArray = array_merge($localLangArray, $parser->getParsedData($xmlFile->getForLocalProcessing(FALSE), $langKey));
 
 		return $localLangArray;
 	}

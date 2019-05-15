@@ -46,7 +46,7 @@ class UpdateFieldsTransformation implements TransformationInterface {
 	/**
 	 * @var ExpressionInterface
 	 */
-	protected $whereClause;
+	protected $whereExpression;
 
 	/**
 	 * @var array
@@ -56,13 +56,13 @@ class UpdateFieldsTransformation implements TransformationInterface {
 	/**
 	 * @param $updateProperties
 	 * @param $tableName
-	 * @param ExpressionInterface $whereClause
+	 * @param ExpressionInterface $whereExpression
 	 * @param $unsetProperties
 	 */
-	public function __construct($updateProperties, $tableName, ExpressionInterface $whereClause = NULL, $unsetProperties = NULL) {
+	public function __construct($updateProperties, $tableName, ExpressionInterface $whereExpression = NULL, $unsetProperties = NULL) {
 		$this->updateProperties = $updateProperties;
 		$this->tableName = $tableName;
-		$this->whereClause = $whereClause;
+		$this->whereExpression = $whereExpression;
 		$this->unsetProperties = $unsetProperties;
 	}
 
@@ -72,7 +72,7 @@ class UpdateFieldsTransformation implements TransformationInterface {
 	 */
 	public function run(AbstractEntity $node) {
 		if ($node->_getTableName() === $this->tableName) {
-			if ($this->whereClause === NULL || $this->whereClause->evaluate($node)) {
+			if ($this->whereExpression === NULL || $this->whereExpression->evaluate($node)) {
 				foreach ($this->updateProperties as $propertyNamePath => $value) {
 					$evaluatedValue = $value instanceof ExpressionInterface ? $value->evaluate($node) : (string) $value;
 					list($propertyName, $flexFieldPath) = GeneralUtility::trimExplode(':', $propertyNamePath, TRUE, 2);

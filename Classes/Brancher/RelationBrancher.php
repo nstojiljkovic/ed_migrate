@@ -46,17 +46,17 @@ class RelationBrancher implements BrancherInterface {
 	/**
 	 * @var string|ExpressionInterface
 	 */
-	protected $whereClause;
+	protected $whereExpression;
 
 	/**
 	 * @param $allowedParentTables
 	 * @param $tableName
-	 * @param $whereClause
+	 * @param $whereExpression
 	 */
-	public function __construct($allowedParentTables, $tableName, $whereClause) {
+	public function __construct($allowedParentTables, $tableName, $whereExpression) {
 		$this->allowedParentTables = $allowedParentTables;
 		$this->tableName = $tableName;
-		$this->whereClause = $whereClause;
+		$this->whereExpression = $whereExpression;
 	}
 
 	/**
@@ -73,7 +73,7 @@ class RelationBrancher implements BrancherInterface {
 		/** @var \EssentialDots\EdMigrate\Domain\Repository\NodeRepository $nodeRepository */
 		$nodeRepository = $objectManager->get('EssentialDots\\EdMigrate\\Domain\\Repository\\NodeRepository');
 
-		$whereClause = $this->whereClause instanceof ExpressionInterface ? $this->whereClause->evaluate($node) : (string) $this->whereClause;
-		return $nodeRepository->findBy($this->tableName, $whereClause);
+		$whereExpression = $this->whereExpression instanceof ExpressionInterface ? $this->whereExpression->evaluate($node) : (string) $this->whereExpression;
+		return $nodeRepository->findBy($this->tableName, $whereExpression);
 	}
 }

@@ -51,19 +51,19 @@ class TranslateElementWithAllLanguagesTransformation implements TransformationIn
 	/**
 	 * @var ExpressionInterface
 	 */
-	protected $whereClause;
+	protected $whereExpression;
 
 	/**
 	 * @param array $relationFields
 	 * @param $childTableName
 	 * @param string $parentTableName
-	 * @param ExpressionInterface|NULL $whereClause
+	 * @param ExpressionInterface|NULL $whereExpression
 	 */
-	public function __construct(array $relationFields, $childTableName, $parentTableName = '*', ExpressionInterface $whereClause = NULL) {
+	public function __construct(array $relationFields, $childTableName, $parentTableName = '*', ExpressionInterface $whereExpression = NULL) {
 		$this->relationFields = $relationFields;
 		$this->childTableName = $childTableName;
 		$this->parentTableName = $parentTableName;
-		$this->whereClause = $whereClause;
+		$this->whereExpression = $whereExpression;
 	}
 
 	/**
@@ -98,7 +98,7 @@ class TranslateElementWithAllLanguagesTransformation implements TransformationIn
 	/**
 	 * @return ExpressionInterface
 	 */
-	public function getWhereClause() {
-		return $this->whereClause;
+	public function getWhereExpression() {
+		return $this->whereExpression;
 	}
 }

@@ -47,15 +47,15 @@ class SyncPageTranslationsTransformation implements TransformationInterface {
 	/**
 	 * @var ExpressionInterface
 	 */
-	protected $whereClause;
+	protected $whereExpression;
 
 	/**
 	 * @param string $languageUids
-	 * @param ExpressionInterface $whereClause
+	 * @param ExpressionInterface $whereExpression
 	 */
-	public function __construct($languageUids, ExpressionInterface $whereClause = NULL) {
+	public function __construct($languageUids, ExpressionInterface $whereExpression = NULL) {
 		$this->languageUids = $languageUids;
-		$this->whereClause = $whereClause;
+		$this->whereExpression = $whereExpression;
 	}
 
 	/**
@@ -64,7 +64,7 @@ class SyncPageTranslationsTransformation implements TransformationInterface {
 	 */
 	public function run(AbstractEntity $node) {
 		if ($node->_getTableName() === 'pages') {
-			if ($this->whereClause === NULL || $this->whereClause->evaluate($node)) {
+			if ($this->whereExpression === NULL || $this->whereExpression->evaluate($node)) {
 				$this->syncTranslationsAction($node->getUid(), $this->languageUids);
 			}
 		}
@@ -494,13 +494,6 @@ SQL;
 			$graph[$lang] = $this->sortColumns($els);
 		}
 		return $graph;
-	}
-
-	/**
-	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected function getDatabaseConnection() {
-		return $GLOBALS['TYPO3_DB'];
 	}
 
 	/**

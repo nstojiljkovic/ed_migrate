@@ -25,6 +25,7 @@ namespace EssentialDots\EdMigrate\Persistence\Mapper;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
+use TYPO3\CMS\Extbase\Annotation as Extbase;
 
 /**
  * Class DataMapFactory
@@ -41,8 +42,8 @@ class DataMapFactory implements SingletonInterface {
 	// @codingStandardsIgnoreEnd
 
 	/**
+	 * @Extbase\Inject
 	 * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
-	 * @inject
 	 */
 	protected $objectManager;
 

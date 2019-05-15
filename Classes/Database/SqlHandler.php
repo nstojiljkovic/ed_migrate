@@ -1,8 +1,10 @@
 <?php
 namespace EssentialDots\EdMigrate\Database;
+use EssentialDots\EdMigrate\Service\DatabaseService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Annotation as Extbase;
 
 /***************************************************************
  *  Copyright notice
@@ -38,13 +40,12 @@ class SqlHandler implements SingletonInterface {
 
 	/**
 	 * @var \TYPO3\CMS\Install\Service\SqlSchemaMigrationService
-	 * @inject
 	 */
 	protected $sqlHandler = NULL;
 
 	/**
+	 * @Extbase\Inject
 	 * @var \TYPO3\CMS\Extbase\Object\ObjectManager
-	 * @inject
 	 */
 	protected $objectManager = NULL;
 
@@ -118,14 +119,25 @@ class SqlHandler implements SingletonInterface {
 			// Aggregate the per-connection statements into one flat array
 			$addCreateChange = array_merge_recursive(...array_values($addCreateChange));
 
-			$statements = array_merge_recursive(...array_values($addCreateChange));
+			$relevantKeys = ['add', 'create_table', 'change', 'change_table', 'drop', 'drop_table'];
+			$statements = [];
+
+			foreach ($relevantKeys as $k) {
+				if (isset($addCreateChange[$k]) && is_array($addCreateChange[$k])) {
+					$statements = array_merge($statements, array_values($addCreateChange[$k]));
+				}
+			}
 
 			if ($isRemovalEnabled) {
 				// Difference from current to expected
 				$dropRename = $schemaMigrationService->getUpdateSuggestions($sqlStatements, TRUE);
 				// Aggregate the per-connection statements into one flat array
 				$dropRename = array_merge_recursive(...array_values($dropRename));
-				$statements += array_merge_recursive(...array_values($dropRename));
+				foreach ($relevantKeys as $k) {
+					if (isset($dropRename[$k]) && is_array($dropRename[$k])) {
+						$statements = array_merge($statements, array_values($dropRename[$k]));
+					}
+				}
 			}
 
 			$statements = array_filter($statements, function ($v) {
@@ -135,7 +147,7 @@ class SqlHandler implements SingletonInterface {
 				return str_replace(',', ",\n", $s) . ';';
 			}, $statements);
 		} else {
-			$database = $GLOBALS['TYPO3_DB'];
+			$database = DatabaseService::getDatabase();
 
 			$changes = $this->sqlHandler->getUpdateSuggestions(
 				$this->getStructureDifferencesForUpdate($database, $allowKeyModifications)

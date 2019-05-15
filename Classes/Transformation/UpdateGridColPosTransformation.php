@@ -3,7 +3,7 @@ namespace EssentialDots\EdMigrate\Transformation;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Domain\Model\Node;
 use EssentialDots\EdMigrate\Expression\ExpressionInterface;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+use EssentialDots\EdMigrate\Service\DatabaseService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -88,7 +88,7 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 	/**
 	 * @var ExpressionInterface
 	 */
-	protected $whereClause;
+	protected $whereExpression;
 
 	/**
 	 * @param $colPosMap
@@ -100,7 +100,7 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 	 * @param string $referenceParentField
 	 * @param string $tableName
 	 * @param string $childTableName
-	 * @param ExpressionInterface|NULL $whereClause
+	 * @param ExpressionInterface|NULL $whereExpression
 	 */
 	public function __construct(
 		$colPosMap,
@@ -109,7 +109,7 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 		$parentField =  '',
 		$referenceParentField =  '',
 		$tableName = 'tt_content', $childTableName = 'tt_content',
-		ExpressionInterface $whereClause = NULL
+		ExpressionInterface $whereExpression = NULL
 	) {
 		$this->colPosMap = $colPosMap;
 		$this->notUsedColPos = $notUsedColPos;
@@ -123,7 +123,7 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 		$this->referenceParentField = $referenceParentField;
 		$this->tableName = $tableName;
 		$this->childTableName = $childTableName;
-		$this->whereClause = $whereClause;
+		$this->whereExpression = $whereExpression;
 	}
 
 	/**
@@ -133,7 +133,7 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 	public function run(AbstractEntity $node) {
 		if (
 			$node->_getTableName() === $this->tableName &&
-			($this->whereClause === NULL || $this->whereClause->evaluate($node))
+			($this->whereExpression === NULL || $this->whereExpression->evaluate($node))
 		) {
 			/** @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager */
 			$objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
@@ -169,7 +169,7 @@ class UpdateGridColPosTransformation implements TransformationInterface {
 //			$childElements =
 // 				$nodeRepository->findBy($this->childTableName, '(uid IN (' . implode(',', $allUids) . ') OR (l18n_parent = 0 AND pid = ' . (int) $node->getUid() . '))' .
 //				BackendUtility::deleteClause($this->childTableName));
-			$childElements = $nodeRepository->findBy($this->childTableName, 'uid IN (' . implode(',', $allUids) . ')' . BackendUtility::deleteClause($this->childTableName));
+			$childElements = $nodeRepository->findBy($this->childTableName, 'uid IN (' . implode(',', $allUids) . ')' . DatabaseService::deleteClause($this->childTableName));
 			foreach ($childElements as $childElement) {
 //				$found = FALSE;
 				$finalColPos = $this->notUsedColPos;

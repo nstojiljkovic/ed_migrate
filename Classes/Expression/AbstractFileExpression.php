@@ -1,6 +1,6 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+use EssentialDots\EdMigrate\Service\DatabaseService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /***************************************************************
@@ -39,11 +39,11 @@ abstract class AbstractFileExpression implements ExpressionInterface {
 	 * @return null|\TYPO3\CMS\Core\Resource\File
 	 */
 	protected function findExistingFileByStorageFolderAndSha1($storage, $folder, $sha1) {
-		$sysFileDeleteClause = BackendUtility::deleteClause('sys_file');
-		$escStorage = $this->getDatabase()->fullQuoteStr($storage, 'sys_file');
-		$escFolder = $this->getDatabase()->escapeStrForLike($folder, 'sys_file');
-		$escSha1 = $this->getDatabase()->fullQuoteStr($sha1, 'sys_file');
-		$res = $this->getDatabase()->sql_query(<<<SQL
+		$sysFileDeleteClause = DatabaseService::deleteClause('sys_file');
+		$escStorage = DatabaseService::getDatabase()->fullQuoteStr($storage, 'sys_file');
+		$escFolder = DatabaseService::getDatabase()->escapeStrForLike($folder, 'sys_file');
+		$escSha1 = DatabaseService::getDatabase()->fullQuoteStr($sha1, 'sys_file');
+		$res = DatabaseService::getDatabase()->sql_query(<<<SQL
 			# @tables_used = sys_file;
 
 			SELECT *
@@ -52,7 +52,7 @@ abstract class AbstractFileExpression implements ExpressionInterface {
 SQL
 		);
 
-		while (($row = $this->getDatabase()->sql_fetch_assoc($res))) {
+		while (($row = DatabaseService::getDatabase()->sql_fetch_assoc($res))) {
 			if (preg_match('/' . preg_quote($folder, '/') . '\/([^\/]+)/msU', $row['identifier']) === 1) {
 				/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
 				$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
@@ -64,19 +64,5 @@ SQL
 		}
 
 		return NULL;
-	}
-
-	/**
-	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected function getDatabase() {
-		$result = $GLOBALS['TYPO3_DB'];
-
-		if (ExtensionManagementUtility::isLoaded('ed_scale')) {
-			/** @var \EssentialDots\EdScale\Database\DatabaseConnection $result */
-			$result = $result->getConnectionByName('default');
-		}
-
-		return $result;
 	}
 }
