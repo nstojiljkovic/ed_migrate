@@ -1,3 +1,11 @@
+Version: 1.0.0
+Subject: [TASK] TYPO3 9 LTS compatible version
+Date:    2019-08-02 11:04:05 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=89c228cc22d39b8b49e9f83978ec9271d65ba9a1
+
+Change-Id: Ia1ad86093968affdbff10ca1c52e5d0bb5af5c53
+Related: #TP-5060
+
 Version: 0.0.21
 Subject: [TASK] Add support for running mass migrations of arbitrary TYPO3 data using small chunks
 Date:    2018-10-22 17:50:49 +0200
