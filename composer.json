@@ -4,7 +4,7 @@
     "require": {
         "php": ">=7.2.0",
         "typo3\/cms-core": "^9.5",
-        "friendsoftypo3\/typo3db-legacy": "^1.1.1",
+        "friendsoftypo3\/typo3db-legacy": "^1",
         "symfony\/expression-language": "^4.1",
         "ext-pcntl": "*"
     },

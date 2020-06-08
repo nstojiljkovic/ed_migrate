@@ -44,12 +44,6 @@ class SqlHandler implements SingletonInterface {
 	protected $sqlHandler = NULL;
 
 	/**
-	 * @Extbase\Inject
-	 * @var \TYPO3\CMS\Extbase\Object\ObjectManager
-	 */
-	protected $objectManager = NULL;
-
-	/**
 	 * @var array
 	 */
 	protected $loadedExtensions;
@@ -69,7 +63,9 @@ class SqlHandler implements SingletonInterface {
 	 */
 	public static function getInstance() {
 		if (!self::$singletonInstance) {
-			self::$singletonInstance = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager')->get('EssentialDots\\EdMigrate\\Database\\SqlHandler');
+			// @codingStandardsIgnoreStart
+			self::$singletonInstance = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class)->get(\EssentialDots\EdMigrate\Database\SqlHandler::class);
+			// @codingStandardsIgnoreEnd
 		}
 
 		return self::$singletonInstance;
@@ -80,7 +76,7 @@ class SqlHandler implements SingletonInterface {
 	 */
 	public function __construct() {
 		/* @var $packageManager \TYPO3\CMS\Core\Package\PackageManager */
-		$packageManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Package\\PackageManager');
+		$packageManager = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class)->get(\TYPO3\CMS\Core\Package\PackageManager::class);
 		$this->loadedExtensions = array_keys($packageManager->getActivePackages());
 
 		$this->consideredTypes = $this->getUpdateTypes();
