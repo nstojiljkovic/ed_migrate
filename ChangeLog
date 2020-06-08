@@ -1,3 +1,14 @@
+Version: 1.0.1
+Subject: [CLEANUP] Remove new "scan extension files" warnings
+Date:    2020-06-08 17:47:08 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=f0e909b173a2cc37821f63bd99deb51cfc25bf28
+
+Change-Id: I6a9d9553dab88f66788b527c8650c686edb6c102
+Related: #TP-5201
+Reviewed-on: https://gerrit.essentialdots.com/c/TYPO3CMS/Extensions/ed_migrate/+/6069
+Tested-by: Mr. Jenkins <jenkins@essentialdots.com>
+Reviewed-by: Nikola Stojiljković <nikola.stojiljkovic@essentialdots.com>
+
 Version: 1.0.0
 Subject: [TASK] TYPO3 9 LTS compatible version
 Date:    2019-08-02 11:04:05 +0200
