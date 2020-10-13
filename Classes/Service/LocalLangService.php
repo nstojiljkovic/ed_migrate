@@ -22,6 +22,8 @@ namespace EssentialDots\EdMigrate\Service;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
@@ -78,7 +80,7 @@ class LocalLangService implements SingletonInterface {
 	public function migrateLocallangTranslationFile($source, $destination, $autoDeleteProcessedFilesAndFolders = TRUE, $autoConvertFileType = TRUE) {
 
 		/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
-		$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+		$resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 		$storageUid = 0;
 		$storage = $resourceFactory->getStorageObject($storageUid);
 		$l10nFolder = $storage->getFolder('typo3conf/l10n');

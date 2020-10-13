@@ -49,7 +49,7 @@ class StatusCommand extends AbstractCommand {
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
-	 * @return void
+	 * @return int
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$namespace = $input->getArgument('namespace');
@@ -78,5 +78,7 @@ class StatusCommand extends AbstractCommand {
 			);
 		}
 		$this->cliEchoTable($output, $statusData);
+
+		return 0;
 	}
 }

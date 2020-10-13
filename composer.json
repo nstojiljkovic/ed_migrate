@@ -3,7 +3,7 @@
     "description": "Support for custom migrations in TYPO3",
     "require": {
         "php": ">=7.2.0",
-        "typo3\/cms-core": "^9.5",
+        "typo3\/cms-core": "^10",
         "friendsoftypo3\/typo3db-legacy": "^1",
         "symfony\/expression-language": "^4.1",
         "ext-pcntl": "*"
@@ -26,5 +26,5 @@
             "EssentialDots\\EdMigrate\\": "Classes\/"
         }
     },
-    "version": "1.0.2-dev"
+    "version": "2.0.0-dev"
 }

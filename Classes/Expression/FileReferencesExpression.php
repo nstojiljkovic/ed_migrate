@@ -2,6 +2,7 @@
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
 use EssentialDots\EdMigrate\Domain\Model\Node;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -112,7 +113,7 @@ class FileReferencesExpression extends AbstractFileExpression {
 		$targetFolder = $this->targetFolder instanceof ExpressionInterface ? $this->targetFolder->evaluate($node) : (string) $this->targetFolder;
 
 		/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
-		$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+		$resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 		if (is_array($sourceFiles)) {
 			$returnArray = TRUE;
 			$sourceFilesArr = &$sourceFiles;

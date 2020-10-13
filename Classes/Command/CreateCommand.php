@@ -53,7 +53,7 @@ class CreateCommand extends AbstractCommand {
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
-	 * @return void
+	 * @return int
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$namespace = $input->getArgument('namespace');
@@ -89,21 +89,21 @@ class CreateCommand extends AbstractCommand {
 					'DatabaseService::getDatabase()->sql_query(<<<SQL' . PHP_EOL . $indent . $indent[0],
 					PHP_EOL . 'SQL' . PHP_EOL . $indent . ');' . PHP_EOL . $indent . '$this->output->write(\'.\');' . PHP_EOL);
 				$className = 'Migration' . date('YmdHis') . $migrationName;
-				array_walk($statements, function(&$value, $key, $statementWrap) {
+				array_walk($statements, function (&$value, $key, $statementWrap) {
 					$value = $statementWrap[0] . $value . $statementWrap[1];
 				}, $statementWrap);
 
 				$res = file_put_contents(
 					$folder . DIRECTORY_SEPARATOR . $className . '.php',
 					str_replace(
-						array (
+						array(
 							'###YEAR###',
 							'###COMPANY###',
 							'###CLASS-NAME###',
 							'###NAMESPACE###',
 							'###STATEMENTS###'
 						),
-						array (
+						array(
 							date('Y'),
 							$company,
 							$className,
@@ -124,5 +124,7 @@ class CreateCommand extends AbstractCommand {
 		} else {
 			$output->writeln($this->cliPendingWrap('No changes found. Migration not created.'));
 		}
+
+		return 0;
 	}
 }

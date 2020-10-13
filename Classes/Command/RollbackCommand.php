@@ -60,8 +60,8 @@ class RollbackCommand extends AbstractCommand {
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
+	 * @return int
 	 * @throws \Exception
-	 * @return void
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$namespace = $input->getArgument('namespace');
@@ -107,5 +107,7 @@ class RollbackCommand extends AbstractCommand {
 			}
 		}
 		$output->writeln('Done.');
+
+		return 0;
 	}
 }

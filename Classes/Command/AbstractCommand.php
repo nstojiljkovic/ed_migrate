@@ -358,25 +358,23 @@ class AbstractCommand extends Command {
 			}
 
 			try {
-				if (version_compare(TYPO3_version, 8.0, '>=')) {
-					/** @var \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool */
-					$connectionPool = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class);
-					foreach ($connectionPool->getConnectionNames() as $connectionName) {
-						$connection = $connectionPool->getConnectionByName($connectionName);
-						if (!$connection->isConnected() || !$connection->ping()) {
-							$connection->close();
-							try {
-								$refObject = new ReflectionObject($connection);
-								$refProperty = $refObject->getProperty('customConnectSetupExecuted');
-								$refProperty->setAccessible(TRUE);
-								$refProperty->setValue($connection, FALSE);
-								$refProperty->setAccessible(FALSE);
-							} catch (ReflectionException $exception) {
-								// ignore exception
-								// $this->outputLine($exception->getMessage());
-							}
-							$connection->connect();
+				/** @var \TYPO3\CMS\Core\Database\ConnectionPool $connectionPool */
+				$connectionPool = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class);
+				foreach ($connectionPool->getConnectionNames() as $connectionName) {
+					$connection = $connectionPool->getConnectionByName($connectionName);
+					if (!$connection->isConnected() || !$connection->ping()) {
+						$connection->close();
+						try {
+							$refObject = new ReflectionObject($connection);
+							$refProperty = $refObject->getProperty('customConnectSetupExecuted');
+							$refProperty->setAccessible(TRUE);
+							$refProperty->setValue($connection, FALSE);
+							$refProperty->setAccessible(FALSE);
+						} catch (ReflectionException $exception) {
+							// ignore exception
+							// $this->outputLine($exception->getMessage());
 						}
+						$connection->connect();
 					}
 				}
 

@@ -49,12 +49,14 @@ class DatabaseDiffCommand extends AbstractCommand {
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
-	 * @return void
+	 * @return int
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$addRemovalQueries = $input->getArgument('addRemovalQueries');
 
 		$statements = SqlHandler::getInstance()->getStructureUpdateSql($addRemovalQueries);
 		$output->write(implode(PHP_EOL, $statements) . PHP_EOL);
+
+		return 0;
 	}
 }

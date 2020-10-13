@@ -63,7 +63,7 @@ class PartialMigrationCommand extends AbstractCommand {
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
-	 * @return void
+	 * @return int
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$migration = $input->getArgument('migration');
@@ -159,5 +159,7 @@ class PartialMigrationCommand extends AbstractCommand {
 		} else {
 			throw new \RuntimeException('Migration ' . $migration . ' is not an instance of PageRecursiveMigrationInterface!', 6);
 		}
+
+		return 0;
 	}
 }

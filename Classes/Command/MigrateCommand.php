@@ -60,8 +60,8 @@ class MigrateCommand extends AbstractCommand {
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
+	 * @return int
 	 * @throws \Exception
-	 * @return void
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$namespace = $input->getArgument('namespace');
@@ -76,7 +76,7 @@ class MigrateCommand extends AbstractCommand {
 			foreach ($this->getMigrations($namespace) as $version => $_) {
 				$logEntry = $logEntries[$version];
 				if (!$logEntry) {
-					if ((string) $version === (string) $target) {
+					if ((string)$version === (string)$target) {
 						$foundTarget = TRUE;
 						break;
 					}
@@ -117,7 +117,7 @@ class MigrateCommand extends AbstractCommand {
 					$this->getLogRepository()->update($log);
 					$this->getPersistenceManager()->persistAll();
 					$output->writeln($this->cliSuccessWrap(PHP_EOL . 'Success!', TRUE));
-					if ($target && (string) $version === (string) $target) {
+					if ($target && (string)$version === (string)$target) {
 						break;
 					}
 				} else {
@@ -126,5 +126,7 @@ class MigrateCommand extends AbstractCommand {
 			}
 		}
 		$output->writeln('Done.');
+
+		return 0;
 	}
 }

@@ -1,6 +1,7 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Domain\Model\AbstractEntity;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -93,7 +94,7 @@ class FileExpression extends AbstractFileExpression {
 	 */
 	protected function evaluateSingleFile($sourceFolder, $sourceFile, $targetFolder) {
 		/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
-		$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+		$resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 		$sourceFileIdentifier = $sourceFolder . $sourceFile;
 		try {
 			$sourceFileResource = $resourceFactory->getFileObjectFromCombinedIdentifier($sourceFileIdentifier);

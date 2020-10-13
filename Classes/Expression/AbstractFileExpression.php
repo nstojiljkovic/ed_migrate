@@ -1,7 +1,9 @@
 <?php
 namespace EssentialDots\EdMigrate\Expression;
 use EssentialDots\EdMigrate\Service\DatabaseService;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -55,7 +57,7 @@ SQL
 		while (($row = DatabaseService::getDatabase()->sql_fetch_assoc($res))) {
 			if (preg_match('/' . preg_quote($folder, '/') . '\/([^\/]+)/msU', $row['identifier']) === 1) {
 				/** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
-				$resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+				$resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 				$fileResource = $resourceFactory->getFileObjectFromCombinedIdentifier($storage . ':' . $row['identifier']);
 				if ($fileResource) {
 					return $fileResource;

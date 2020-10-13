@@ -52,7 +52,7 @@ class SetExtConfigurationCommand extends AbstractCommand {
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
-	 * @return void
+	 * @return int
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$extension = $input->getArgument('extension');
@@ -60,5 +60,7 @@ class SetExtConfigurationCommand extends AbstractCommand {
 		$value = $input->getArgument('value');
 
 		GeneralUtility::makeInstance(ExtensionConfiguration::class)->set($extension, $path, $value);
+
+		return 0;
 	}
 }
