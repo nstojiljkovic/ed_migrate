@@ -1,3 +1,14 @@
+Version: 2.0.0
+Subject: [TASK] Update compatibility to TYPO3 10 LTS
+Date:    2020-10-15 09:19:39 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=bc43da90e42eb9d0cdcb40496fa2a0251871714f
+
+Change-Id: I8e6784ae34197a44eb9096a27836f9fb2d8ae364
+Related: #TP-5273
+Reviewed-on: https://gerrit.essentialdots.com/c/TYPO3CMS/Extensions/ed_migrate/+/6278
+Tested-by: Mr. Jenkins <jenkins@essentialdots.com>
+Reviewed-by: Nikola Stojiljković <nikola.stojiljkovic@essentialdots.com>
+
 Version: 1.0.1
 Subject: [CLEANUP] Remove new "scan extension files" warnings
 Date:    2020-06-08 17:47:08 +0200
