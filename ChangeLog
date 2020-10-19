@@ -1,3 +1,14 @@
+Version: 2.0.1
+Subject: [BUGFIX] Update DummyReferenceIndex to be compatible with TYPO3 v10 ReferenceIndex class
+Date:    2020-10-19 07:23:01 +0200
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=12e47d6ae911c332b7e11fe24643e9c91c509167
+
+Change-Id: If706dc638b6a7d38287508ca06ae13b94398a790
+Related: #TP-5273
+Reviewed-on: https://gerrit.essentialdots.com/c/TYPO3CMS/Extensions/ed_migrate/+/6287
+Tested-by: Mr. Jenkins <jenkins@essentialdots.com>
+Reviewed-by: Nikola Stojiljković <nikola.stojiljkovic@essentialdots.com>
+
 Version: 2.0.0
 Subject: [TASK] Update compatibility to TYPO3 10 LTS
 Date:    2020-10-15 09:19:39 +0200
