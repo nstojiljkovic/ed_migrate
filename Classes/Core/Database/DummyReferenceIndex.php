@@ -80,13 +80,16 @@ class DummyReferenceIndex extends \TYPO3\CMS\Core\Database\ReferenceIndex {
 
 	// @codingStandardsIgnoreStart
 	/**
-	 * @param array $dsArr
-	 * @param mixed $dataValue
-	 * @param array $PA
-	 * @param string $structurePath
-	 * @param object $parentObject
+	 * Callback function for traversing the FlexForm structure in relation to finding DB references!
+	 *
+	 * @param array $dsArr Data structure for the current value
+	 * @param mixed $dataValue Current value
+	 * @param array $PA Additional configuration used in calling function
+	 * @param string $structurePath Path of value in DS structure
+	 * @see DataHandler::checkValue_flex_procInData_travDS()
+	 * @see FlexFormTools::traverseFlexFormXMLData()
 	 */
-	public function getRelations_flexFormCallBack($dsArr, $dataValue, $PA, $structurePath, $parentObject) {
+	public function getRelations_flexFormCallBack($dsArr, $dataValue, $PA, $structurePath) {
 	}
 
 	/**
