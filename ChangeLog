@@ -1,3 +1,14 @@
+Version: 2.0.2
+Subject: [TASK] Allow installing of development version of typo3db-legacy extension
+Date:    2021-11-03 18:34:28 +0000
+Gitweb:  https://gerrit.essentialdots.com/gitweb?p=TYPO3CMS/Extensions/ed_migrate.git;a=commit;h=f23a59ab12ef73b874da14dbf630066e579d6df7
+
+Change-Id: I9052975961740d8d1ff420ed4f5b31ffbe074c3e
+Related: #TP-5374
+Reviewed-on: https://gerrit.essentialdots.com/c/TYPO3CMS/Extensions/ed_migrate/+/6824
+Tested-by: Mr. Jenkins <jenkins@essentialdots.com>
+Reviewed-by: Nikola Stojiljkovic <nikola.stojiljkovic@essentialdots.com>
+
 Version: 2.0.1
 Subject: [BUGFIX] Update DummyReferenceIndex to be compatible with TYPO3 v10 ReferenceIndex class
 Date:    2020-10-19 07:23:01 +0200
